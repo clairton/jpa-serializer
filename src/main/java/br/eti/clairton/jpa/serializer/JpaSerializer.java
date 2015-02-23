@@ -10,6 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.Mirror;
@@ -22,6 +23,14 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+/**
+ * Serializa um entidade JPA para JSON usando o Gson.
+ * 
+ * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ *
+ * @param <T>
+ *            tipo da entidade
+ */
 public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 	private final Mirror mirror;
 	private final Logger logger;
@@ -35,13 +44,22 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 		}
 	};
 
-	public JpaSerializer(final Mirror mirror, final Logger logger) {
+	/**
+	 * Construtor Padrão.
+	 * 
+	 * @param mirror
+	 *            instancia de {@link Mirror}
+	 * @param logger
+	 *            instancia de {@link Logger}
+	 */
+	public JpaSerializer(final @NotNull Mirror mirror,
+			final @NotNull Logger logger) {
 		super();
 		this.mirror = mirror;
 		this.logger = logger;
 	}
 
-	public void addIgnoredField(final String field) {
+	public void addIgnoredField(@NotNull final String field) {
 		ignored.add(field);
 	}
 
@@ -53,7 +71,7 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 			final JsonSerializationContext context) {
 		try {
 			final JsonObject json = new JsonObject();
-			final String name = type.getTypeName();
+			final String name = type.toString().replaceAll("class ", "");
 			final List<Field> fields = mirror.on(name).reflectAll().fields();
 			final AccessorsController controller = mirror.on(src);
 			for (final Field field : fields) {

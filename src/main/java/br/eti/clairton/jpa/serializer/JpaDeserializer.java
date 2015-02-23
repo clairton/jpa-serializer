@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
+import javax.validation.constraints.NotNull;
 
 import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
@@ -31,12 +32,31 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+/**
+ * Deserializa um JSON para um entidade JPA usando o Gson.
+ * 
+ * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
+ *
+ * @param <T>
+ *            tipo da entidade
+ */
 public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 	private final Mirror mirror;
 	private final Logger logger;
 	private final EntityManager entityManager;
 
-	public JpaDeserializer(EntityManager entityManager, final Mirror mirror, final Logger logger) {
+	/**
+	 * Construtor Padrão.
+	 * 
+	 * @param entityManager
+	 *            instancia de {@link EntityManager}
+	 * @param mirror
+	 *            instancia de {@link Mirror}
+	 * @param logger
+	 *            instancia de {@link Logger}
+	 */
+	public JpaDeserializer(final @NotNull EntityManager entityManager,
+			@NotNull final Mirror mirror, @NotNull final Logger logger) {
 		super();
 		this.mirror = mirror;
 		this.logger = logger;
@@ -50,8 +70,9 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 	public T deserialize(final JsonElement json, final Type type,
 			final JsonDeserializationContext context) throws JsonParseException {
 		try {
+			final String name = type.toString().replaceAll("class ", "");
 			@SuppressWarnings("unchecked")
-			final Class<T> klazz = (Class<T>) Class.forName(type.getTypeName());
+			final Class<T> klazz = (Class<T>) Class.forName(name);
 			final T model = klazz.cast(klazz.newInstance());
 			final ClassController<?> controller = mirror.on(klazz);
 			final AccessorsController accessor = mirror.on(model);
@@ -70,11 +91,15 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 					for (final JsonElement element : array) {
 						final Object object = elementType.newInstance();
 						final SetterHandler handler = mirror.on(object).set();
-						EntityType<?> entity = entityManager.getMetamodel().entity(elementType);
-						javax.persistence.metamodel.Type<?> idType = entity.getIdType();
-						Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
+						EntityType<?> entity = entityManager.getMetamodel()
+								.entity(elementType);
+						javax.persistence.metamodel.Type<?> idType = entity
+								.getIdType();
+						Attribute<?, ?> attribute = entity.getId(idType
+								.getJavaType());
 						final String fieldIdName = attribute.getName();
-						final FieldSetter fieldSetter = handler.field(fieldIdName);
+						final FieldSetter fieldSetter = handler
+								.field(fieldIdName);
 						fieldSetter.withValue(element.getAsLong());
 						list.add(object);
 					}
@@ -85,12 +110,16 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 						value = null;
 					} else {
 						value = field.getType().newInstance();
-						EntityType<?> entity = entityManager.getMetamodel().entity(value.getClass());
-						javax.persistence.metamodel.Type<?> idType = entity.getIdType();
-						Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
+						EntityType<?> entity = entityManager.getMetamodel()
+								.entity(value.getClass());
+						javax.persistence.metamodel.Type<?> idType = entity
+								.getIdType();
+						Attribute<?, ?> attribute = entity.getId(idType
+								.getJavaType());
 						final String fieldIdName = attribute.getName();
 						final SetterHandler handler = mirror.on(value).set();
-						final FieldSetter fieldSetter = handler.field(fieldIdName);
+						final FieldSetter fieldSetter = handler
+								.field(fieldIdName);
 						fieldSetter.withValue(entry.getValue().getAsLong());
 					}
 				} else {

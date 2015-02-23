@@ -30,9 +30,8 @@ public class JpaDeserializerTest {
 		final EntityManagerFactory emf = Persistence
 				.createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
-		builder.registerTypeAdapter(Aplicacao.class,
-				new JpaDeserializer<Aplicacao>(em, mirror, logger) {
-				});
+		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(
+				em, mirror, logger));
 		builder.registerTypeAdapter(Recurso.class,
 				new JpaDeserializer<Recurso>(em, mirror, logger) {
 				});
