@@ -3,8 +3,7 @@ package br.eti.clairton.jpa.serializer;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
@@ -86,7 +85,16 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 					final ParameterizedType pType = (ParameterizedType) fielType;
 					final Type[] arr = pType.getActualTypeArguments();
 					final Class<?> elementType = (Class<?>) arr[0];
-					final List<Object> list = new ArrayList<Object>();
+					@SuppressWarnings("unchecked")
+					final Collection<Object> collection = (Collection<Object>) accessor
+							.get().field(field);
+					if (collection == null) {
+						throw new IllegalStateException(
+								String.format(
+										"A coleção %s em %s deve ser inicializada quando declarada ou no construtor padrão",
+										field.getName(), type));
+					}
+					collection.clear();
 					final JsonArray array = entry.getValue().getAsJsonArray();
 					for (final JsonElement element : array) {
 						final Object object = elementType.newInstance();
@@ -101,9 +109,9 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 						final FieldSetter fieldSetter = handler
 								.field(fieldIdName);
 						fieldSetter.withValue(element.getAsLong());
-						list.add(object);
+						collection.add(object);
 					}
-					value = list;
+					value = collection;
 				} else if (field.isAnnotationPresent(ManyToOne.class)
 						|| field.isAnnotationPresent(OneToOne.class)) {
 					if (JsonNull.class.isInstance(entry.getValue())) {

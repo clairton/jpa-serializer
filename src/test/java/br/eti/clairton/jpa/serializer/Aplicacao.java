@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -21,7 +22,7 @@ public class Aplicacao extends Model {
 	private static final long serialVersionUID = 1L;
 
 	@OneToMany(mappedBy = "aplicacao", cascade = CascadeType.ALL)
-	private Collection<Recurso> recursos = new HashSet<Recurso>();
+	private Set<Recurso> recursos = new HashSet<Recurso>();
 
 	private String nome;
 
