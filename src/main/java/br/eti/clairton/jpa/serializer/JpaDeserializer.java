@@ -70,6 +70,7 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			final JsonDeserializationContext context) throws JsonParseException {
 		try {
 			final String name = type.toString().replaceAll("class ", "");
+			logger.debug("Deserializando tipo {}", name);
 			@SuppressWarnings("unchecked")
 			final Class<T> klazz = (Class<T>) Class.forName(name);
 			final T model = klazz.cast(klazz.newInstance());
@@ -77,6 +78,7 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			final AccessorsController accessor = mirror.on(model);
 			final JsonObject jsonObject = (JsonObject) json;
 			for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+				logger.debug("Deserializando {}#{}", name, entry.getKey());
 				final Field field = controller.reflect().field(entry.getKey());
 				final Object value;
 				if (field.isAnnotationPresent(OneToMany.class)
@@ -85,9 +87,10 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 					final ParameterizedType pType = (ParameterizedType) fielType;
 					final Type[] arr = pType.getActualTypeArguments();
 					final Class<?> elementType = (Class<?>) arr[0];
+					@SuppressWarnings("rawtypes")
+					final Class<Collection> t = Collection.class;
 					@SuppressWarnings("unchecked")
-					final Collection<Object> collection = (Collection<Object>) accessor
-							.get().field(field);
+					final Collection<Object> collection = t.cast(accessor.get().field(field));
 					if (collection == null) {
 						throw new IllegalStateException(
 								String.format(
@@ -99,15 +102,11 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 					for (final JsonElement element : array) {
 						final Object object = elementType.newInstance();
 						final SetterHandler handler = mirror.on(object).set();
-						EntityType<?> entity = entityManager.getMetamodel()
-								.entity(elementType);
-						javax.persistence.metamodel.Type<?> idType = entity
-								.getIdType();
-						Attribute<?, ?> attribute = entity.getId(idType
-								.getJavaType());
+						final EntityType<?> entity = entityManager.getMetamodel().entity(elementType);
+						final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
+						final Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
 						final String fieldIdName = attribute.getName();
-						final FieldSetter fieldSetter = handler
-								.field(fieldIdName);
+						final FieldSetter fieldSetter = handler.field(fieldIdName);
 						fieldSetter.withValue(element.getAsLong());
 						collection.add(object);
 					}
@@ -118,22 +117,19 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 						value = null;
 					} else {
 						value = field.getType().newInstance();
-						EntityType<?> entity = entityManager.getMetamodel()
-								.entity(value.getClass());
-						javax.persistence.metamodel.Type<?> idType = entity
-								.getIdType();
-						Attribute<?, ?> attribute = entity.getId(idType
-								.getJavaType());
+						final EntityType<?> entity = entityManager.getMetamodel().entity(value.getClass());
+						final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
+						final Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
 						final String fieldIdName = attribute.getName();
 						final SetterHandler handler = mirror.on(value).set();
-						final FieldSetter fieldSetter = handler
-								.field(fieldIdName);
+						final FieldSetter fieldSetter = handler.field(fieldIdName);
 						fieldSetter.withValue(entry.getValue().getAsLong());
 					}
 				} else {
 					value = context.deserialize(entry.getValue(),
 							field.getType());
 				}
+				logger.debug("Valor extraido {}#{}=", name, field, value);
 				accessor.set().field(field).withValue(value);
 			}
 			return model;

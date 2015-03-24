@@ -72,13 +72,16 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 		try {
 			final JsonObject json = new JsonObject();
 			final String name = type.toString().replaceAll("class ", "");
+			logger.debug("Serializando tipo {}", name);
 			final List<Field> fields = mirror.on(name).reflectAll().fields();
 			final AccessorsController controller = mirror.on(src);
 			for (final Field field : fields) {
 				final String tag = field.getName();
 				if (ignored.contains(tag)) {
+					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
+				logger.debug("Serializando {}#{}", name, tag);
 				final Object value;
 				if (field.isAnnotationPresent(OneToMany.class)
 						|| field.isAnnotationPresent(ManyToMany.class)) {
@@ -96,6 +99,7 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 				} else {
 					value = mirror.on(src).get().field(tag);
 				}
+				logger.debug("Valor extraido {}#{}=", name, tag, value);
 				final JsonElement element;
 				if (value == null) {
 					element = context.serialize(value);
