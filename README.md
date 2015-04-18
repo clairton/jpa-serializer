@@ -1,4 +1,4 @@
-# jpa-serializer[![Build Status](https://travis-ci.org/clairton/jpa-serializer.svg?branch=master)](https://travis-ci.org/clairton/jpa-serializer)
+# jpa-serializer[![Build Status](https://drone.io/github.com/clairton/jpa-serializer/status.png)](https://drone.io/github.com/clairton/jpa-serializer/latest)
 Serialize JPA entities for JSON ActiveModelSerializer Style with GSON.
 To Use example:
 ```java
