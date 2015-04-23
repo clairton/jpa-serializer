@@ -2,8 +2,12 @@ package br.eti.clairton.jpa.serializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToMany;
@@ -75,7 +79,7 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			logger.debug("Deserializando tipo {}", name);
 			@SuppressWarnings("unchecked")
 			final Class<T> klazz = (Class<T>) Class.forName(name);
-			final T model = klazz.cast(klazz.newInstance());
+			final T model = klazz.cast(mirror.on(klazz).invoke().constructor().withoutArgs());
 			final ClassController<?> controller = mirror.on(klazz);
 			final AccessorsController accessor = mirror.on(model);
 			final JsonObject jsonObject = (JsonObject) json;
@@ -84,22 +88,9 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 				final Field field = controller.reflect().field(entry.getKey());
 				final Object value;
 				if (isToMany(field)) {
-					@SuppressWarnings("rawtypes")
-					final Class<Collection> t = Collection.class;
-					final Object c = accessor.get().field(field);
-					@SuppressWarnings("unchecked")
-					final Collection<Object> collection = t.cast(c);
-					if (collection == null) {
-						throw new IllegalStateException(
-								String.format(
-										"A coleção %s em %s deve ser inicializada quando declarada ou no construtor padrão",
-										field.getName(), type));
-					}
-					collection.clear();
-					toMany(field, entry.getValue(), collection);
-					value = collection;
+					value = toMany(context, field, entry.getValue());
 				} else if (isToOne(field)) {
-					value = toOne(field, entry.getValue());
+					value = toOne(context, field, entry.getValue());
 				} else {
 					final java.lang.reflect.Type t = field.getType();
 					value = context.deserialize(entry.getValue(), t);
@@ -124,7 +115,8 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 				|| field.isAnnotationPresent(OneToOne.class);
 	}
 
-	public <W> W toOne(final Field field, JsonElement element) {
+	public <W> W toOne(final JsonDeserializationContext context,
+			final Field field, JsonElement element) {
 		if (JsonNull.class.isInstance(element)) {
 			return null;
 		} else {
@@ -149,12 +141,13 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 		}
 	}
 
-	public <W> void toMany(final Field field, final JsonElement element, final Collection<W> collection) {
+	public <W> Collection<W> toMany(final JsonDeserializationContext context,
+			final Field field, final JsonElement element) {
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
 		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();
 		final Class<?> elementType = (Class<?>) arr[0];
-		collection.clear();
+		final Collection<W> collection = getInstance(field.getType());
 		final JsonArray array = element.getAsJsonArray();
 		for (final JsonElement jsonElement : array) {
 			final W object;
@@ -176,5 +169,17 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			fieldSetter.withValue(jsonElement.getAsLong());
 			collection.add(object);
 		}
+		return collection;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <Z, W> Z getInstance(final Class<?> type) {
+		Z z = null;
+		if (type.isAssignableFrom(List.class)) {
+			z = (Z) new ArrayList<W>();
+		} else if (type.isAssignableFrom(Set.class)) {
+			z = (Z) new HashSet<W>();
+		}
+		return z;
 	}
 }
