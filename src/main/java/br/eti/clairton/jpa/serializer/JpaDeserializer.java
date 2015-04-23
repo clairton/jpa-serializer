@@ -2,7 +2,6 @@ package br.eti.clairton.jpa.serializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map.Entry;
 
@@ -13,6 +12,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.Type;
 import javax.validation.constraints.NotNull;
 
 import net.vidageek.mirror.dsl.AccessorsController;
@@ -66,7 +67,8 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 	 * {@inheritDoc}.
 	 */
 	@Override
-	public T deserialize(final JsonElement json, final Type type,
+	public T deserialize(final JsonElement json,
+			final java.lang.reflect.Type type,
 			final JsonDeserializationContext context) throws JsonParseException {
 		try {
 			final String name = type.toString().replaceAll("class ", "");
@@ -81,16 +83,12 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 				logger.debug("Deserializando {}#{}", name, entry.getKey());
 				final Field field = controller.reflect().field(entry.getKey());
 				final Object value;
-				if (field.isAnnotationPresent(OneToMany.class)
-						|| field.isAnnotationPresent(ManyToMany.class)) {
-					final Type fielType = field.getGenericType();
-					final ParameterizedType pType = (ParameterizedType) fielType;
-					final Type[] arr = pType.getActualTypeArguments();
-					final Class<?> elementType = (Class<?>) arr[0];
+				if (isToMany(field)) {
 					@SuppressWarnings("rawtypes")
 					final Class<Collection> t = Collection.class;
+					final Object c = accessor.get().field(field);
 					@SuppressWarnings("unchecked")
-					final Collection<Object> collection = t.cast(accessor.get().field(field));
+					final Collection<Object> collection = t.cast(c);
 					if (collection == null) {
 						throw new IllegalStateException(
 								String.format(
@@ -98,36 +96,13 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 										field.getName(), type));
 					}
 					collection.clear();
-					final JsonArray array = entry.getValue().getAsJsonArray();
-					for (final JsonElement element : array) {
-						final Object object = elementType.newInstance();
-						final SetterHandler handler = mirror.on(object).set();
-						final EntityType<?> entity = entityManager.getMetamodel().entity(elementType);
-						final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
-						final Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
-						final String fieldIdName = attribute.getName();
-						final FieldSetter fieldSetter = handler.field(fieldIdName);
-						fieldSetter.withValue(element.getAsLong());
-						collection.add(object);
-					}
+					toMany(field, entry.getValue(), collection);
 					value = collection;
-				} else if (field.isAnnotationPresent(ManyToOne.class)
-						|| field.isAnnotationPresent(OneToOne.class)) {
-					if (JsonNull.class.isInstance(entry.getValue())) {
-						value = null;
-					} else {
-						value = field.getType().newInstance();
-						final EntityType<?> entity = entityManager.getMetamodel().entity(value.getClass());
-						final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
-						final Attribute<?, ?> attribute = entity.getId(idType.getJavaType());
-						final String fieldIdName = attribute.getName();
-						final SetterHandler handler = mirror.on(value).set();
-						final FieldSetter fieldSetter = handler.field(fieldIdName);
-						fieldSetter.withValue(entry.getValue().getAsLong());
-					}
+				} else if (isToOne(field)) {
+					value = toOne(field, entry.getValue());
 				} else {
-					value = context.deserialize(entry.getValue(),
-							field.getType());
+					final java.lang.reflect.Type t = field.getType();
+					value = context.deserialize(entry.getValue(), t);
 				}
 				logger.debug("Valor extraido {}#{}=", name, field, value);
 				accessor.set().field(field).withValue(value);
@@ -136,6 +111,70 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 		} catch (final Exception e) {
 			logger.error("Erro ao deserializar " + json, e);
 			throw new JsonParseException(e);
+		}
+	}
+
+	public Boolean isToMany(final Field field) {
+		return field.isAnnotationPresent(OneToMany.class)
+				|| field.isAnnotationPresent(ManyToMany.class);
+	}
+
+	public Boolean isToOne(final Field field) {
+		return field.isAnnotationPresent(ManyToOne.class)
+				|| field.isAnnotationPresent(OneToOne.class);
+	}
+
+	public <W> W toOne(final Field field, JsonElement element) {
+		if (JsonNull.class.isInstance(element)) {
+			return null;
+		} else {
+			final W value;
+			try {
+				@SuppressWarnings("unchecked")
+				final W v = (W) field.getType().newInstance();
+				value = v;
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			final Metamodel metamodel = entityManager.getMetamodel();
+			final EntityType<?> entity = metamodel.entity(value.getClass());
+			final Type<?> idType = entity.getIdType();
+			final Class<?> t = idType.getJavaType();
+			final Attribute<?, ?> attribute = entity.getId(t);
+			final String fieldIdName = attribute.getName();
+			final SetterHandler handler = mirror.on(value).set();
+			final FieldSetter fieldSetter = handler.field(fieldIdName);
+			fieldSetter.withValue(element.getAsLong());
+			return value;
+		}
+	}
+
+	public <W> void toMany(final Field field, final JsonElement element, final Collection<W> collection) {
+		final java.lang.reflect.Type fielType = field.getGenericType();
+		final ParameterizedType pType = (ParameterizedType) fielType;
+		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();
+		final Class<?> elementType = (Class<?>) arr[0];
+		collection.clear();
+		final JsonArray array = element.getAsJsonArray();
+		for (final JsonElement jsonElement : array) {
+			final W object;
+			try {
+				@SuppressWarnings("unchecked")
+				final W o = (W) elementType.newInstance();
+				object = o;
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			final SetterHandler handler = mirror.on(object).set();
+			final Metamodel metamodel = entityManager.getMetamodel();
+			final EntityType<?> entity = metamodel.entity(elementType);
+			final Type<?> idType = entity.getIdType();
+			final Class<?> t = idType.getJavaType();
+			final Attribute<?, ?> attribute = entity.getId(t);
+			final String fieldIdName = attribute.getName();
+			final FieldSetter fieldSetter = handler.field(fieldIdName);
+			fieldSetter.withValue(jsonElement.getAsLong());
+			collection.add(object);
 		}
 	}
 }

@@ -45,7 +45,6 @@ public class JpaDeserializerTest {
 				new JpaDeserializer<ModelOneToOne>(em, mirror, logger) {
 				});
 		gson = builder.create();
-		gson = builder.create();
 	}
 
 	@Test
