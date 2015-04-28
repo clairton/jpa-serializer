@@ -24,6 +24,10 @@ abstract class AbstractSerializator<T> {
 		return controller.reflect().field(field);
 	}
 
+	public Object getId(final Object target) {
+		return getValue(target, "id");
+	}
+
 	public Object getValue(final Object target, final String field) {
 		final AccessorsController controller = mirror.on(target);
 		return controller.get().field(field);

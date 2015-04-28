@@ -67,14 +67,12 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 	 * {@inheritDoc}.
 	 */
 	@Override
-	public T deserialize(final JsonElement json,
-			final java.lang.reflect.Type type,
-			final JsonDeserializationContext context) throws JsonParseException {
+	public T deserialize(final JsonElement json, final java.lang.reflect.Type type, final JsonDeserializationContext context) throws JsonParseException {
 		final T model = getInstance(type);
 		final JsonObject jsonObject = (JsonObject) json;
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
-			final Object value = field(context, entry.getValue(), field);
+			final Object value = getValue(context, entry.getValue(), field);
 			logger.debug("Valor extraido {}#{}=", type, field, value);
 			setValue(model, field, value);
 		}
@@ -88,16 +86,17 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 		return model;
 	}
 
-	public Object field(final JsonDeserializationContext context,
-			final JsonElement element, final Field field) {
+	public Object getValue(final JsonDeserializationContext context, final JsonElement element, final Field field) {
+		final Object value;
 		if (isToMany(field)) {
-			return toMany(context, field, element);
+			value = toMany(context, field, element);
 		} else if (isToOne(field)) {
-			return toOne(context, field, element);
+			value = toOne(context, field, element);
 		} else {
 			final java.lang.reflect.Type t = field.getType();
-			return context.deserialize(element, t);
+			value = context.deserialize(element, t);
 		}
+		return value;
 	}
 
 	public <W> W toOne(final JsonDeserializationContext context,

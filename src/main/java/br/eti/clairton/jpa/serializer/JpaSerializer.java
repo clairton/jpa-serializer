@@ -67,30 +67,14 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 		try {
 			final JsonObject json = new JsonObject();
 			final Class<T> klazz = getClass(type);
-			final List<Field> fields = mirror.on(klazz).reflectAll().fields();
+			final List<Field> fields = getFields(klazz);
 			for (final Field field : fields) {
 				final String tag = field.getName();
 				if (ignored.contains(tag)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
-				logger.debug("Serializando {}#{}", klazz.getSimpleName(), tag);
-				final Object value;
-				if (isToOne(field)) {
-					final Collection<Object> ids = new ArrayList<Object>();
-					final Object v = getValue(src, field);
-					final Collection<?> models = Collection.class.cast(v);
-					for (final Object model : models) {
-						ids.add(getValue(model, "id"));
-					}
-					value = ids;
-				} else if (isToMany(field)) {
-					final Object v = getValue(src, tag);
-					value = getValue(v, "id");
-				} else {
-					value = getValue(src, tag);
-				}
-				logger.debug("Valor extraido {}#{}=", klazz.getSimpleName(), tag, value);
+				final Object value = getValue(context, src, field);
 				final JsonElement element;
 				if (value == null) {
 					element = context.serialize(value);
@@ -104,6 +88,33 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 			logger.error("Erro ao serializar " + src, e);
 			throw new JsonParseException(e);
 		}
+	}
+
+	public List<Field> getFields(final Class<T> klazz) {
+		return mirror.on(klazz).reflectAll().fields();
+	}
+
+	public Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
+		final Object value;
+		final String klazz = src.getClass().getSimpleName();
+		final String tag = field.getName();
+		logger.debug("Serializando {}#{}", klazz, tag);
+		if (isToOne(field)) {
+			final Collection<Object> ids = new ArrayList<Object>();
+			final Object v = getValue(src, field);
+			final Collection<?> models = Collection.class.cast(v);
+			for (final Object model : models) {
+				ids.add(getId(model));
+			}
+			value = ids;
+		} else if (isToMany(field)) {
+			final Object v = getValue(src, field);
+			value = getId(v);
+		} else {
+			value = getValue(src, field);
+		}
+		logger.debug("Valor extraido {}#{}=", klazz, tag, value);
+		return value;
 	}
 
 	@Override
