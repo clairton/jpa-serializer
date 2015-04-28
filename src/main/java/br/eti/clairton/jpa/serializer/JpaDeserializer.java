@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
 import net.vidageek.mirror.dsl.Mirror;
+import net.vidageek.mirror.invoke.dsl.InvocationHandler;
 import net.vidageek.mirror.set.dsl.FieldSetter;
 import net.vidageek.mirror.set.dsl.SetterHandler;
 
@@ -71,28 +72,36 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator implements
 	public T deserialize(final JsonElement json,
 			final java.lang.reflect.Type type,
 			final JsonDeserializationContext context) throws JsonParseException {
+		final T model = getInstance(type);
+		final ClassController<?> controller = mirror.on(model.getClass());
+		final AccessorsController accessor = mirror.on(model);
+		final JsonObject jsonObject = (JsonObject) json;
+		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+			final Field field = controller.reflect().field(entry.getKey());
+			final Object value = field(context, entry.getValue(), field);
+			logger.debug("Valor extraido {}#{}=", type, field, value);
+			accessor.set().field(field).withValue(value);
+		}
+		return model;
+	}
+
+	public T getInstance(java.lang.reflect.Type type) {
+		final String name = type.toString().replaceAll("class ", "");
+		logger.debug("Deserializando tipo {}", name);
+		final Class<T> klazz;
 		try {
-			final String name = type.toString().replaceAll("class ", "");
-			logger.debug("Deserializando tipo {}", name);
 			@SuppressWarnings("unchecked")
-			final Class<T> klazz = (Class<T>) Class.forName(name);
-			final T model = klazz.cast(mirror.on(klazz).invoke().constructor()
-					.withoutArgs());
-			final ClassController<?> controller = mirror.on(klazz);
-			final AccessorsController accessor = mirror.on(model);
-			final JsonObject jsonObject = (JsonObject) json;
-			for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-				logger.debug("Deserializando {}#{}", name, entry.getKey());
-				final Field field = controller.reflect().field(entry.getKey());
-				final Object value = field(context, entry.getValue(), field);
-				logger.debug("Valor extraido {}#{}=", name, field, value);
-				accessor.set().field(field).withValue(value);
-			}
-			return model;
+			final Class<T> t = (Class<T>) Class.forName(name);
+			klazz = t;
 		} catch (final Exception e) {
-			logger.error("Erro ao deserializar " + json, e);
+			logger.error("Erro ao instanciar tipo {}, detalhe: {}", type,
+					e.getMessage());
+			logger.debug("Erro ao instanciar", e);
 			throw new JsonParseException(e);
 		}
+		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
+		final T model = klazz.cast(invoke.constructor().withoutArgs());
+		return model;
 	}
 
 	public Object field(final JsonDeserializationContext context,
