@@ -44,7 +44,8 @@ import com.google.gson.JsonParseException;
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaDeserializer<T> extends AbstractSerializator implements JsonDeserializer<T> {
+public abstract class JpaDeserializer<T> extends AbstractSerializator implements
+		JsonDeserializer<T> {
 	private final EntityManager entityManager;
 
 	/**
@@ -75,22 +76,15 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator implements
 			logger.debug("Deserializando tipo {}", name);
 			@SuppressWarnings("unchecked")
 			final Class<T> klazz = (Class<T>) Class.forName(name);
-			final T model = klazz.cast(mirror.on(klazz).invoke().constructor().withoutArgs());
+			final T model = klazz.cast(mirror.on(klazz).invoke().constructor()
+					.withoutArgs());
 			final ClassController<?> controller = mirror.on(klazz);
 			final AccessorsController accessor = mirror.on(model);
 			final JsonObject jsonObject = (JsonObject) json;
 			for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 				logger.debug("Deserializando {}#{}", name, entry.getKey());
 				final Field field = controller.reflect().field(entry.getKey());
-				final Object value;
-				if (isToMany(field)) {
-					value = toMany(context, field, entry.getValue());
-				} else if (isToOne(field)) {
-					value = toOne(context, field, entry.getValue());
-				} else {
-					final java.lang.reflect.Type t = field.getType();
-					value = context.deserialize(entry.getValue(), t);
-				}
+				final Object value = field(context, entry.getValue(), field);
 				logger.debug("Valor extraido {}#{}=", name, field, value);
 				accessor.set().field(field).withValue(value);
 			}
@@ -98,6 +92,18 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator implements
 		} catch (final Exception e) {
 			logger.error("Erro ao deserializar " + json, e);
 			throw new JsonParseException(e);
+		}
+	}
+
+	public Object field(final JsonDeserializationContext context,
+			final JsonElement element, final Field field) {
+		if (isToMany(field)) {
+			return toMany(context, field, element);
+		} else if (isToOne(field)) {
+			return toOne(context, field, element);
+		} else {
+			final java.lang.reflect.Type t = field.getType();
+			return context.deserialize(element, t);
 		}
 	}
 

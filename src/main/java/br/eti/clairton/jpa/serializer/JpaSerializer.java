@@ -70,7 +70,6 @@ public abstract class JpaSerializer<T> extends AbstractSerializator implements
 			final String name = type.toString().replaceAll("class ", "");
 			logger.debug("Serializando tipo {}", name);
 			final List<Field> fields = mirror.on(name).reflectAll().fields();
-			final AccessorsController controller = mirror.on(src);
 			for (final Field field : fields) {
 				final String tag = field.getName();
 				if (ignored.contains(tag)) {
@@ -80,6 +79,7 @@ public abstract class JpaSerializer<T> extends AbstractSerializator implements
 				logger.debug("Serializando {}#{}", name, tag);
 				final Object value;
 				if (isToOne(field)) {
+					final AccessorsController controller = mirror.on(src);
 					final Collection<Object> ids = new ArrayList<Object>();
 					final Object v = controller.get().field(tag);
 					final Collection<?> models = Collection.class.cast(v);
@@ -88,6 +88,7 @@ public abstract class JpaSerializer<T> extends AbstractSerializator implements
 					}
 					value = ids;
 				} else if (isToMany(field)) {
+					final AccessorsController controller = mirror.on(src);
 					final Object v = controller.get().field(tag);
 					value = mirror.on(v).get().field("id");
 				} else {
