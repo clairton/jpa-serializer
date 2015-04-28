@@ -20,8 +20,6 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.Type;
 import javax.validation.constraints.NotNull;
 
-import net.vidageek.mirror.dsl.AccessorsController;
-import net.vidageek.mirror.dsl.ClassController;
 import net.vidageek.mirror.dsl.Mirror;
 import net.vidageek.mirror.invoke.dsl.InvocationHandler;
 import net.vidageek.mirror.set.dsl.FieldSetter;
@@ -45,8 +43,8 @@ import com.google.gson.JsonParseException;
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaDeserializer<T> extends AbstractSerializator implements
-		JsonDeserializer<T> {
+public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
+		implements JsonDeserializer<T> {
 	private final EntityManager entityManager;
 
 	/**
@@ -73,32 +71,18 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator implements
 			final java.lang.reflect.Type type,
 			final JsonDeserializationContext context) throws JsonParseException {
 		final T model = getInstance(type);
-		final ClassController<?> controller = mirror.on(model.getClass());
-		final AccessorsController accessor = mirror.on(model);
 		final JsonObject jsonObject = (JsonObject) json;
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-			final Field field = controller.reflect().field(entry.getKey());
+			final Field field = getField(model.getClass(), entry.getKey());
 			final Object value = field(context, entry.getValue(), field);
 			logger.debug("Valor extraido {}#{}=", type, field, value);
-			accessor.set().field(field).withValue(value);
+			setValue(model, field, value);
 		}
 		return model;
 	}
 
 	public T getInstance(java.lang.reflect.Type type) {
-		final String name = type.toString().replaceAll("class ", "");
-		logger.debug("Deserializando tipo {}", name);
-		final Class<T> klazz;
-		try {
-			@SuppressWarnings("unchecked")
-			final Class<T> t = (Class<T>) Class.forName(name);
-			klazz = t;
-		} catch (final Exception e) {
-			logger.error("Erro ao instanciar tipo {}, detalhe: {}", type,
-					e.getMessage());
-			logger.debug("Erro ao instanciar", e);
-			throw new JsonParseException(e);
-		}
+		final Class<T> klazz = getClass(type);
 		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
 		final T model = klazz.cast(invoke.constructor().withoutArgs());
 		return model;

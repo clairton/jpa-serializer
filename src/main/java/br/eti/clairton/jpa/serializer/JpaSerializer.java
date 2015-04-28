@@ -12,7 +12,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
-import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.Mirror;
 
 import org.apache.logging.log4j.Logger;
@@ -31,8 +30,8 @@ import com.google.gson.JsonSerializer;
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaSerializer<T> extends AbstractSerializator implements
-		JsonSerializer<T> {
+public abstract class JpaSerializer<T> extends AbstractSerializator<T>
+		implements JsonSerializer<T> {
 	private final List<String> ignored = new ArrayList<String>() {
 		private static final long serialVersionUID = 1L;
 
@@ -67,34 +66,31 @@ public abstract class JpaSerializer<T> extends AbstractSerializator implements
 			final JsonSerializationContext context) {
 		try {
 			final JsonObject json = new JsonObject();
-			final String name = type.toString().replaceAll("class ", "");
-			logger.debug("Serializando tipo {}", name);
-			final List<Field> fields = mirror.on(name).reflectAll().fields();
+			final Class<T> klazz = getClass(type);
+			final List<Field> fields = mirror.on(klazz).reflectAll().fields();
 			for (final Field field : fields) {
 				final String tag = field.getName();
 				if (ignored.contains(tag)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
-				logger.debug("Serializando {}#{}", name, tag);
+				logger.debug("Serializando {}#{}", klazz.getSimpleName(), tag);
 				final Object value;
 				if (isToOne(field)) {
-					final AccessorsController controller = mirror.on(src);
 					final Collection<Object> ids = new ArrayList<Object>();
-					final Object v = controller.get().field(tag);
+					final Object v = getValue(src, field);
 					final Collection<?> models = Collection.class.cast(v);
-					for (Object model : models) {
-						ids.add(mirror.on(model).get().field("id"));
+					for (final Object model : models) {
+						ids.add(getValue(model, "id"));
 					}
 					value = ids;
 				} else if (isToMany(field)) {
-					final AccessorsController controller = mirror.on(src);
-					final Object v = controller.get().field(tag);
-					value = mirror.on(v).get().field("id");
+					final Object v = getValue(src, tag);
+					value = getValue(v, "id");
 				} else {
-					value = mirror.on(src).get().field(tag);
+					value = getValue(src, tag);
 				}
-				logger.debug("Valor extraido {}#{}=", name, tag, value);
+				logger.debug("Valor extraido {}#{}=", klazz.getSimpleName(), tag, value);
 				final JsonElement element;
 				if (value == null) {
 					element = context.serialize(value);
