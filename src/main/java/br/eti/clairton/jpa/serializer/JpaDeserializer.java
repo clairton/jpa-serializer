@@ -44,9 +44,7 @@ import com.google.gson.JsonParseException;
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
-	private final Mirror mirror;
-	private final Logger logger;
+public abstract class JpaDeserializer<T> extends AbstractSerializator implements JsonDeserializer<T> {
 	private final EntityManager entityManager;
 
 	/**
@@ -61,9 +59,7 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 	 */
 	public JpaDeserializer(final @NotNull EntityManager entityManager,
 			@NotNull final Mirror mirror, @NotNull final Logger logger) {
-		super();
-		this.mirror = mirror;
-		this.logger = logger;
+		super(mirror, logger);
 		this.entityManager = entityManager;
 	}
 
@@ -103,16 +99,6 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			logger.error("Erro ao deserializar " + json, e);
 			throw new JsonParseException(e);
 		}
-	}
-
-	public Boolean isToMany(final Field field) {
-		return field.isAnnotationPresent(OneToMany.class)
-				|| field.isAnnotationPresent(ManyToMany.class);
-	}
-
-	public Boolean isToOne(final Field field) {
-		return field.isAnnotationPresent(ManyToOne.class)
-				|| field.isAnnotationPresent(OneToOne.class);
 	}
 
 	public <W> W toOne(final JsonDeserializationContext context,
@@ -181,5 +167,17 @@ public abstract class JpaDeserializer<T> implements JsonDeserializer<T> {
 			z = (Z) new HashSet<W>();
 		}
 		return z;
+	}
+
+	@Override
+	public Boolean isToMany(final Field field) {
+		return field.isAnnotationPresent(OneToMany.class)
+				|| field.isAnnotationPresent(ManyToMany.class);
+	}
+
+	@Override
+	public Boolean isToOne(final Field field) {
+		return field.isAnnotationPresent(ManyToOne.class)
+				|| field.isAnnotationPresent(OneToOne.class);
 	}
 }

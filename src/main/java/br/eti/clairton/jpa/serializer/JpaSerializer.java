@@ -31,10 +31,8 @@ import com.google.gson.JsonSerializer;
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaSerializer<T> implements JsonSerializer<T> {
-	private final Mirror mirror;
-	private final Logger logger;
-
+public abstract class JpaSerializer<T> extends AbstractSerializator implements
+		JsonSerializer<T> {
 	private final List<String> ignored = new ArrayList<String>() {
 		private static final long serialVersionUID = 1L;
 
@@ -54,9 +52,7 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 	 */
 	public JpaSerializer(final @NotNull Mirror mirror,
 			final @NotNull Logger logger) {
-		super();
-		this.mirror = mirror;
-		this.logger = logger;
+		super(mirror, logger);
 	}
 
 	public void addIgnoredField(@NotNull final String field) {
@@ -83,8 +79,7 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 				}
 				logger.debug("Serializando {}#{}", name, tag);
 				final Object value;
-				if (field.isAnnotationPresent(OneToMany.class)
-						|| field.isAnnotationPresent(ManyToMany.class)) {
+				if (isToOne(field)) {
 					final Collection<Object> ids = new ArrayList<Object>();
 					final Object v = controller.get().field(tag);
 					final Collection<?> models = Collection.class.cast(v);
@@ -92,8 +87,7 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 						ids.add(mirror.on(model).get().field("id"));
 					}
 					value = ids;
-				} else if (field.isAnnotationPresent(ManyToOne.class)
-						|| field.isAnnotationPresent(OneToOne.class)) {
+				} else if (isToMany(field)) {
 					final Object v = controller.get().field(tag);
 					value = mirror.on(v).get().field("id");
 				} else {
@@ -113,5 +107,17 @@ public abstract class JpaSerializer<T> implements JsonSerializer<T> {
 			logger.error("Erro ao serializar " + src, e);
 			throw new JsonParseException(e);
 		}
+	}
+
+	@Override
+	public Boolean isToMany(final Field field) {
+		return field.isAnnotationPresent(ManyToOne.class)
+				|| field.isAnnotationPresent(OneToOne.class);
+	}
+
+	@Override
+	public Boolean isToOne(final Field field) {
+		return field.isAnnotationPresent(OneToMany.class)
+				|| field.isAnnotationPresent(ManyToMany.class);
 	}
 }
