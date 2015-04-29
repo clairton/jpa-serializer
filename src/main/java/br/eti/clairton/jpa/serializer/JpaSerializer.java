@@ -117,7 +117,7 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 		} else {
 			value = getValue(src, field);
 		}
-		logger.debug("Valor extraido {}#{}=", klazz, tag, value);
+		logger.debug("Valor extraido {}#{}={}", klazz, tag, value);
 		return value;
 	}
 

@@ -73,7 +73,7 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
 			final Object value = getValue(context, entry.getValue(), field);
-			logger.debug("Valor extraido {}#{}=", type, field, value);
+			logger.debug("Valor extraido {}#{}={}", type, field, value);
 			setValue(model, field, value);
 		}
 		return model;
