@@ -74,13 +74,7 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
-				final Object value = getValue(context, src, field);
-				final JsonElement element;
-				if (value == null) {
-					element = context.serialize(value);
-				} else {
-					element = context.serialize(value, value.getClass());
-				}
+				final JsonElement element = serialize(src, field, type, context);
 				json.add(tag, element);
 			}
 			return json;
@@ -90,11 +84,21 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 		}
 	}
 
+	public JsonElement serialize(final Object src, final Field field, final Type type, final JsonSerializationContext context) {
+		final Object value = getValue(context, src, field);
+		if (value == null) {
+			return context.serialize(value);
+		} else {
+			return context.serialize(value, value.getClass());
+		}
+	}
+
 	public List<Field> getFields(final Class<T> klazz) {
 		return mirror.on(klazz).reflectAll().fields();
 	}
 
-	public Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
+	public Object getValue(final JsonSerializationContext context,
+			final Object src, final Field field) {
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
