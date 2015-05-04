@@ -106,8 +106,9 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 		} else {
 			final W value;
 			try {
+				final InvocationHandler<?> invoker = mirror.on(field.getType()).invoke();
 				@SuppressWarnings("unchecked")
-				final W v = (W) field.getType().newInstance();
+				final W v = (W) invoker.constructor().withoutArgs();
 				value = v;
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
