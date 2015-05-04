@@ -113,7 +113,11 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 			value = ids;
 		} else if (isToMany(field)) {
 			final Object v = getValue(src, field);
-			value = getId(v);
+			if(v == null){
+				value = null;
+			}else{
+				value = getId(v);
+			}
 		} else {
 			value = getValue(src, field);
 		}
