@@ -29,8 +29,7 @@ import com.google.gson.JsonSerializer;
  * @param <T>
  *            tipo da entidade
  */
-public class JpaSerializer<T> extends AbstractSerializator<T> implements
-		JsonSerializer<T> {
+public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSerializer<T> {
 	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
 	private final List<String> ignored = new ArrayList<String>() {
 		private static final long serialVersionUID = 1L;
@@ -72,8 +71,7 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements
 		}
 	}
 
-	public JsonElement serialize(final Object src, final Field field,
-			final Type type, final JsonSerializationContext context) {
+	public JsonElement serialize(final Object src, final Field field, final Type type, final JsonSerializationContext context) {
 		final Object value = getValue(context, src, field);
 		if (value == null) {
 			return context.serialize(value);
@@ -86,8 +84,7 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements
 		return mirror.on(klazz).reflectAll().fields();
 	}
 
-	public Object getValue(final JsonSerializationContext context,
-			final Object src, final Field field) {
+	public Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
