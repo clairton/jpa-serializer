@@ -6,18 +6,14 @@ import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
 import net.vidageek.mirror.dsl.Mirror;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
 
 abstract class AbstractSerializator<T> {
-	protected final Mirror mirror;
-	protected final Logger logger;
-
-	public AbstractSerializator(final Mirror mirror, final Logger logger) {
-		this.mirror = mirror;
-		this.logger = logger;
-	}
+	protected final Mirror mirror = new Mirror();
+	private final Logger logger = LogManager.getLogger(AbstractSerializator.class);
 
 	public Field getField(final Class<?> type, final String field) {
 		final ClassController<?> controller = mirror.on(type);

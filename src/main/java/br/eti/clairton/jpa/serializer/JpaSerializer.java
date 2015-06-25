@@ -12,8 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
-import net.vidageek.mirror.dsl.Mirror;
-
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonElement;
@@ -24,14 +23,14 @@ import com.google.gson.JsonSerializer;
 
 /**
  * Serializa um entidade JPA para JSON usando o Gson.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  *
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaSerializer<T> extends AbstractSerializator<T>
-		implements JsonSerializer<T> {
+public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSerializer<T> {
+	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
 	private final List<String> ignored = new ArrayList<String>() {
 		private static final long serialVersionUID = 1L;
 
@@ -40,19 +39,6 @@ public abstract class JpaSerializer<T> extends AbstractSerializator<T>
 			add("MIRROR");
 		}
 	};
-
-	/**
-	 * Construtor Padrão.
-	 * 
-	 * @param mirror
-	 *            instancia de {@link Mirror}
-	 * @param logger
-	 *            instancia de {@link Logger}
-	 */
-	public JpaSerializer(final @NotNull Mirror mirror,
-			final @NotNull Logger logger) {
-		super(mirror, logger);
-	}
 
 	public void addIgnoredField(@NotNull final String field) {
 		ignored.add(field);

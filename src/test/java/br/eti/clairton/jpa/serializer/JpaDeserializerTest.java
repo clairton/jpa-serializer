@@ -30,20 +30,11 @@ public class JpaDeserializerTest {
 		final EntityManagerFactory emf = Persistence
 				.createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
-		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(
-				em, mirror, logger));
-		builder.registerTypeAdapter(Recurso.class,
-				new JpaDeserializer<Recurso>(em, mirror, logger) {
-				});
-		builder.registerTypeAdapter(OutroModel.class,
-				new JpaDeserializer<OutroModel>(em, mirror, logger) {
-				});
-		builder.registerTypeAdapter(ModelManyToMany.class,
-				new JpaDeserializer<ModelManyToMany>(em, mirror, logger) {
-				});
-		builder.registerTypeAdapter(ModelOneToOne.class,
-				new JpaDeserializer<ModelOneToOne>(em, mirror, logger) {
-				});
+		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(em));
+		builder.registerTypeAdapter(Recurso.class, new JpaDeserializer<Recurso>(em) {});
+		builder.registerTypeAdapter(OutroModel.class, new JpaDeserializer<OutroModel>(em) {});
+		builder.registerTypeAdapter(ModelManyToMany.class, new JpaDeserializer<ModelManyToMany>(em) {});
+		builder.registerTypeAdapter(ModelOneToOne.class,new JpaDeserializer<ModelOneToOne>(em) {});
 		gson = builder.create();
 	}
 

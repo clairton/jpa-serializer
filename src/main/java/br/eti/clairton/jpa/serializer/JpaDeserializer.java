@@ -25,6 +25,7 @@ import net.vidageek.mirror.invoke.dsl.InvocationHandler;
 import net.vidageek.mirror.set.dsl.FieldSetter;
 import net.vidageek.mirror.set.dsl.SetterHandler;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonArray;
@@ -37,19 +38,19 @@ import com.google.gson.JsonParseException;
 
 /**
  * Deserializa um JSON para um entidade JPA usando o Gson.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  *
  * @param <T>
  *            tipo da entidade
  */
-public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
-		implements JsonDeserializer<T> {
+public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonDeserializer<T> {
+	private final Logger logger = LogManager.getLogger(JpaDeserializer.class);
 	private final EntityManager entityManager;
 
 	/**
 	 * Construtor Padrão.
-	 * 
+	 *
 	 * @param entityManager
 	 *            instancia de {@link EntityManager}
 	 * @param mirror
@@ -57,9 +58,7 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 	 * @param logger
 	 *            instancia de {@link Logger}
 	 */
-	public JpaDeserializer(final @NotNull EntityManager entityManager,
-			@NotNull final Mirror mirror, @NotNull final Logger logger) {
-		super(mirror, logger);
+	public JpaDeserializer(final @NotNull EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
 
@@ -88,7 +87,9 @@ public abstract class JpaDeserializer<T> extends AbstractSerializator<T>
 
 	public Object getValue(final JsonDeserializationContext context, final JsonElement element, final Field field) {
 		final Object value;
-		if (isToMany(field)) {
+		if(field == null){
+			value = null;
+		} else if (isToMany(field)) {
 			value = toMany(context, field, element);
 		} else if (isToOne(field)) {
 			value = toOne(context, field, element);

@@ -29,21 +29,11 @@ public class JpaSerializerTest {
 	@Before
 	public void init() {
 		final GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Aplicacao.class,
-				new JpaSerializer<Aplicacao>(mirror, logger) {
-				});
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(
-				mirror, logger) {
-		});
-		builder.registerTypeAdapter(OutroModel.class,
-				new JpaSerializer<OutroModel>(mirror, logger) {
-				});
-		builder.registerTypeAdapter(ModelManyToMany.class,
-				new JpaSerializer<ModelManyToMany>(mirror, logger) {
-				});
-		builder.registerTypeAdapter(ModelOneToOne.class,
-				new JpaSerializer<ModelOneToOne>(mirror, logger) {
-				});
+		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>());
+		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>());
+		builder.registerTypeAdapter(OutroModel.class, new JpaSerializer<OutroModel>());
+		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>());
+		builder.registerTypeAdapter(ModelOneToOne.class, new JpaSerializer<ModelOneToOne>());
 		gson = builder.create();
 	}
 
