@@ -169,13 +169,15 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 
 	@Override
 	public Boolean isToMany(final Field field) {
-		return field.isAnnotationPresent(OneToMany.class)
-				|| field.isAnnotationPresent(ManyToMany.class);
+		return (field.isAnnotationPresent(OneToMany.class) || field
+				.isAnnotationPresent(ManyToMany.class))
+				&& nodes().get(field.getName()).equals(Mode.ID);
 	}
 
 	@Override
 	public Boolean isToOne(final Field field) {
-		return field.isAnnotationPresent(ManyToOne.class)
-				|| field.isAnnotationPresent(OneToOne.class);
+		return (field.isAnnotationPresent(ManyToOne.class)
+				|| field.isAnnotationPresent(OneToOne.class))
+				&& nodes().get(field.getName()).equals(Mode.ID);
 	}
 }

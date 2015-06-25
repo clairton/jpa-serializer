@@ -1,10 +1,10 @@
 package br.eti.clairton.jpa.serializer.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 /**
  * Representa uma Aplicação.
- * 
+ *
  * @author Clairton Rodrigo Heinzen<clairton.rodrigo@gmail.com>
  */
 @Entity
@@ -22,7 +22,7 @@ public class Aplicacao extends Model {
 	private static final long serialVersionUID = 1L;
 
 	@OneToMany(mappedBy = "aplicacao", cascade = CascadeType.ALL)
-	private Set<Recurso> recursos = new HashSet<Recurso>();
+	private List<Recurso> recursos = new ArrayList<Recurso>();
 
 	private String nome;
 
@@ -34,7 +34,7 @@ public class Aplicacao extends Model {
 
 	/**
 	 * Construtor com argumentos.
-	 * 
+	 *
 	 * @param nome
 	 *            nome da aplicação
 	 * @param recursos
@@ -48,7 +48,7 @@ public class Aplicacao extends Model {
 
 	/**
 	 * Construtor com argumentos.
-	 * 
+	 *
 	 * @param nome
 	 *            nome da aplicação
 	 * @param recurso
@@ -60,7 +60,7 @@ public class Aplicacao extends Model {
 
 	/**
 	 * Construtor com parametros.
-	 * 
+	 *
 	 * @param nome
 	 *            da aplicação
 	 */
@@ -80,8 +80,8 @@ public class Aplicacao extends Model {
 		recursos.remove(recurso);
 	}
 
-	public Collection<Recurso> getRecursos() {
-		return Collections.unmodifiableCollection(recursos);
+	public List<Recurso> getRecursos() {
+		return Collections.unmodifiableList(recursos);
 	}
 
 	public String getNome() {

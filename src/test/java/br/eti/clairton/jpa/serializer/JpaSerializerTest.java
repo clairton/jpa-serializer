@@ -21,6 +21,7 @@ import org.junit.Test;
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
 import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
+import br.eti.clairton.jpa.serializer.model.OutroModel;
 import br.eti.clairton.jpa.serializer.model.Recurso;
 
 import com.google.gson.Gson;
@@ -111,18 +112,5 @@ public class JpaSerializerTest {
 		final String json = gson.toJson(model, ModelManyToMany.class);
 		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
 		assertEquals(asList(100.0, 200.0), resultado.get("aplicacoes"));
-	}
-}
-
-class OutroModel extends Aplicacao {
-	private static final long serialVersionUID = 6016230217349046379L;
-	private String outroValor = "PSADGKSADGLDSLÇ";
-
-	public OutroModel(final String nome) {
-		super(nome);
-	}
-
-	public String getOutroValor() {
-		return outroValor;
 	}
 }

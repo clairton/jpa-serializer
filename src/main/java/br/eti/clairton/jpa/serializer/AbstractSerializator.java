@@ -1,6 +1,8 @@
 package br.eti.clairton.jpa.serializer;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
@@ -14,6 +16,16 @@ import com.google.gson.JsonParseException;
 abstract class AbstractSerializator<T> {
 	protected final Mirror mirror = new Mirror();
 	private final Logger logger = LogManager.getLogger(AbstractSerializator.class);
+	private final Map<String, Mode> nodes = new HashMap<String, Mode>(){
+		private static final long serialVersionUID = 1L;
+
+		@Override
+	    public Mode get(final Object key) {
+			final Mode mode = super.get(key);
+	    	return mode == null ? Mode.ID : mode ;
+	    }
+
+	};
 
 	public Field getField(final Class<?> type, final String field) {
 		final ClassController<?> controller = mirror.on(type);
@@ -51,6 +63,10 @@ abstract class AbstractSerializator<T> {
 			logger.debug("Erro ao instanciar", e);
 			throw new JsonParseException(e);
 		}
+	}
+
+	public Map<String, Mode> nodes(){
+		return nodes;
 	}
 
 	public abstract Boolean isToMany(final Field field);
