@@ -31,33 +31,30 @@ import com.google.gson.JsonSerializer;
  */
 public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSerializer<T> {
 	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
-	private final List<String> ignored = new ArrayList<String>() {
-		private static final long serialVersionUID = 1L;
 
-		{
-			add("serialVersionUID");
-			add("MIRROR");
-			add("logger");
-		}
-	};
+	public JpaSerializer() {
+		addIgnoredField("serialVersionUID");
+		addIgnoredField("MIRROR");
+		addIgnoredField("logger");
+		addIgnoredField("STYLE");
+	}
 
 	public void addIgnoredField(@NotNull final String field) {
-		ignored.add(field);
+		nodes().put(field, Mode.IGNORE);
 	}
 
 	/**
 	 * {@inheritDoc}.
 	 */
 	@Override
-	public JsonElement serialize(final T src, final Type type,
-			final JsonSerializationContext context) {
+	public JsonElement serialize(final T src, final Type type, final JsonSerializationContext context) {
 		try {
 			final JsonObject json = new JsonObject();
 			final Class<T> klazz = getClass(type);
 			final List<Field> fields = getFields(klazz);
 			for (final Field field : fields) {
 				final String tag = field.getName();
-				if (ignored.contains(tag)) {
+				if (nodes().get(tag).equals(Mode.IGNORE)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
