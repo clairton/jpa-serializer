@@ -1,4 +1,4 @@
-package br.eti.clairton.jpa.serializer;
+package br.eti.clairton.jpa.serializer.model;
 
 import java.util.ArrayList;
 import java.util.List;

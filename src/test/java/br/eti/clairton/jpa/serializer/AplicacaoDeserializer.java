@@ -1,11 +1,12 @@
 package br.eti.clairton.jpa.serializer;
 
 import javax.persistence.EntityManager;
-import javax.validation.constraints.NotNull;
+
+import br.eti.clairton.jpa.serializer.model.Aplicacao;
 
 public class AplicacaoDeserializer extends JpaDeserializer<Aplicacao> {
 
-	public AplicacaoDeserializer(final @NotNull EntityManager entityManager) {
+	public AplicacaoDeserializer(final EntityManager entityManager) {
 		super(entityManager);
 	}
 

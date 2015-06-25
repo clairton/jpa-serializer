@@ -100,8 +100,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		return value;
 	}
 
-	public <W> W toOne(final JsonDeserializationContext context,
-			final Field field, JsonElement element) {
+	public <W> W toOne(final JsonDeserializationContext context, final Field field, JsonElement element) {
 		if (JsonNull.class.isInstance(element)) {
 			return null;
 		} else {
@@ -127,8 +126,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 	}
 
-	public <W> Collection<W> toMany(final JsonDeserializationContext context,
-			final Field field, final JsonElement element) {
+	public <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field, final JsonElement element) {
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
 		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();

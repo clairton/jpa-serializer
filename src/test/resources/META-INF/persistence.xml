@@ -4,12 +4,12 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0">
 	<persistence-unit name="default">
-		<class>br.eti.clairton.jpa.serializer.Aplicacao</class>
-		<class>br.eti.clairton.jpa.serializer.Recurso</class>
+		<class>br.eti.clairton.jpa.serializer.model.Aplicacao</class>
+		<class>br.eti.clairton.jpa.serializer.model.Recurso</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:target/repository;hsqldb.lock_file=false;create=true" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:target/jpa-serialzier;hsqldb.lock_file=false;create=true" />
 			<property name="javax.persistence.jdbc.user" value="sa" />
 			<property name="javax.persistence.jdbc.password" value="" />
 

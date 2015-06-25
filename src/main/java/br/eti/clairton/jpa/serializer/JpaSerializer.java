@@ -83,8 +83,7 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 		return mirror.on(klazz).reflectAll().fields();
 	}
 
-	public Object getValue(final JsonSerializationContext context,
-			final Object src, final Field field) {
+	public Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();

@@ -16,6 +16,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import br.eti.clairton.jpa.serializer.model.Aplicacao;
+import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
+import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
+import br.eti.clairton.jpa.serializer.model.Recurso;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
