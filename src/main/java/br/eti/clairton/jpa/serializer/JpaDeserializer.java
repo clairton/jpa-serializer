@@ -72,7 +72,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
 			final Object value = getValue(context, entry.getValue(), field);
-			logger.debug("Valor extraido {}#{}={}", type, field, value);
+			logger.debug("Valor extraido {}#{}={}", type, field.getName(), value);
 			setValue(model, field, value);
 		}
 		return model;
@@ -94,10 +94,24 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		} else if (isToOne(field)) {
 			value = toOne(context, field, element);
 		} else {
-			final java.lang.reflect.Type t = field.getType();
-			value = context.deserialize(element, t);
+			if(JsonArray.class.isInstance(element)){
+				value = getValueCollection(context, element.getAsJsonArray(), field);
+			} else {
+				final java.lang.reflect.Type t = field.getType();
+				value = context.deserialize(element, t);
+			}
 		}
 		return value;
+	}
+
+	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Field field) {
+		final Collection<W> collection = getInstance(field.getType());
+		final java.lang.reflect.Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+		for (final JsonElement a : array) {
+			final W object = context.deserialize(a, type);
+			collection.add(object);
+		}
+		return collection;
 	}
 
 	public <W> W toOne(final JsonDeserializationContext context, final Field field, JsonElement element) {

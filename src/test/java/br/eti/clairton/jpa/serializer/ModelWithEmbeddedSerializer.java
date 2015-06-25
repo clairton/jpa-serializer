@@ -6,5 +6,6 @@ public class ModelWithEmbeddedSerializer extends JpaSerializer<ModelWithEmbedded
 
 	public ModelWithEmbeddedSerializer() {
 		nodes().put("aplicacao", Mode.RECORD);
+		nodes().put("recurso", Mode.RECORD);
 	}
 }

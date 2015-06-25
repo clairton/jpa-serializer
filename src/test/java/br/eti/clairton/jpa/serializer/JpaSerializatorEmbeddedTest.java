@@ -18,7 +18,7 @@ import com.google.gson.GsonBuilder;
 
 public class JpaSerializatorEmbeddedTest {
 	private Gson gson;
-	private final String json = "{\"aplicacao\":{\"recursos\":[456],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\"}";
+	private final String json = "{\"aplicacao\":{\"recursos\":[456],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[{\"nome\":\"inserir\",\"id\":456}]}";
 	private ModelWithEmbedded object = new ModelWithEmbedded();
 	private final Class<ModelWithEmbedded> t = ModelWithEmbedded.class;
 
@@ -36,18 +36,19 @@ public class JpaSerializatorEmbeddedTest {
 
 	@Test
 	public void testSerialize() {
-		final ModelWithEmbedded object = gson.fromJson(json, t);
-		assertEquals(this.object.getAplicacao().getId(), object.getAplicacao().getId());
-		assertEquals(this.object.getA(), object.getA());
-		assertEquals(this.object.getAplicacao().getNome(), object.getAplicacao().getNome());
-		assertEquals(this.object.getAplicacao().getRecursos().size(), object.getAplicacao().getRecursos().size());
-		assertEquals(this.object.getAplicacao().getRecursos().get(0).getId(), object.getAplicacao().getRecursos().get(0).getId());
+		final String toCompare = "{\"aplicacao\":{\"recursos\":[{\"nome\":\"inserir\",\"id\":456}],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[456]}";
+		final String json = gson.toJson(object, t);
+		assertEquals(toCompare, json);
 	}
 
 	@Test
 	public void testDeserialize() {
-		final String toCompare = "{\"aplicacao\":{\"recursos\":[{\"nome\":\"inserir\",\"id\":456}],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\"}";
-		final String json = gson.toJson(object, t);
-		assertEquals(toCompare, json);
+		final ModelWithEmbedded object = gson.fromJson(json, t);
+		assertEquals(this.object.getAplicacao().getId(), object.getAplicacao().getId());
+		assertEquals(this.object.getA(), object.getA());
+		assertEquals(this.object.getRecursos().get(0).getId(), object.getRecursos().get(0).getId());
+		assertEquals(this.object.getAplicacao().getNome(), object.getAplicacao().getNome());
+		assertEquals(this.object.getAplicacao().getRecursos().size(), object.getAplicacao().getRecursos().size());
+		assertEquals(this.object.getAplicacao().getRecursos().get(0).getId(), object.getAplicacao().getRecursos().get(0).getId());
 	}
 }

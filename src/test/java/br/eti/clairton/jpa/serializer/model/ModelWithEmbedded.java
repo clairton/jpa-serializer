@@ -1,5 +1,9 @@
 package br.eti.clairton.jpa.serializer.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import net.vidageek.mirror.dsl.Mirror;
@@ -12,6 +16,9 @@ public class ModelWithEmbedded extends Model {
 
 	private String a = "b";
 
+	@OneToMany
+	private List<Recurso> recursos = new ArrayList<Recurso>();
+
 	public ModelWithEmbedded() {
 		aplicacao = new Aplicacao("Teste");
 		Mirror mirror = new Mirror();
@@ -19,6 +26,7 @@ public class ModelWithEmbedded extends Model {
 		mirror.on(recurso).set().field("id").withValue(456l);
 		aplicacao.adicionar(recurso);
 		mirror.on(aplicacao).set().field("id").withValue(100l);
+		recursos.add(recurso);
 	}
 
 	public Aplicacao getAplicacao() {
@@ -27,5 +35,9 @@ public class ModelWithEmbedded extends Model {
 
 	public String getA() {
 		return a;
+	}
+
+	public List<Recurso> getRecursos() {
+		return recursos;
 	}
 }

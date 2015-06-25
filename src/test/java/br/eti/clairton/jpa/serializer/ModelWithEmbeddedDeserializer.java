@@ -9,6 +9,6 @@ public class ModelWithEmbeddedDeserializer extends JpaDeserializer<ModelWithEmbe
 	public ModelWithEmbeddedDeserializer(final EntityManager entityManager) {
 		super(entityManager);
 		nodes().put("aplicacao", Mode.RECORD);
+		nodes().put("recursos", Mode.RECORD);
 	}
-
 }

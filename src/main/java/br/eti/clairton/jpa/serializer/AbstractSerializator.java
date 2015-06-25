@@ -51,12 +51,12 @@ abstract class AbstractSerializator<T> {
 		accessor.set().field(field).withValue(value);
 	}
 
-	public Class<T> getClass(java.lang.reflect.Type type) {
+	public Class<T> getClass(final java.lang.reflect.Type type) {
 		final String name = type.toString().replaceAll("class ", "");
-		logger.debug("Deserializando tipo {}", name);
 		try {
 			@SuppressWarnings("unchecked")
 			final Class<T> t = (Class<T>) Class.forName(name);
+			logger.debug("Deserializando tipo {}", t.getSimpleName());
 			return t;
 		} catch (final Exception e) {
 			logger.error("Erro ao instanciar tipo {}, detalhe: {}", type, e.getMessage());
