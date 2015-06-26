@@ -47,6 +47,7 @@ public class JpaSerializatorEmbeddedTest {
 		assertEquals(this.object.getAplicacao().getId(), object.getAplicacao().getId());
 		assertEquals(this.object.getA(), object.getA());
 		assertEquals(this.object.getRecursos().get(0).getId(), object.getRecursos().get(0).getId());
+		assertEquals(object, object.getRecursos().get(0).getEmbedded());
 		assertEquals(this.object.getAplicacao().getNome(), object.getAplicacao().getNome());
 		assertEquals(this.object.getAplicacao().getRecursos().size(), object.getAplicacao().getRecursos().size());
 		assertEquals(this.object.getAplicacao().getRecursos().get(0).getId(), object.getAplicacao().getRecursos().get(0).getId());

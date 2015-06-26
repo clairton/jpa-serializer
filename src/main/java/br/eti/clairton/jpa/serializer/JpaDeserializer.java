@@ -1,12 +1,17 @@
 package br.eti.clairton.jpa.serializer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -45,8 +50,21 @@ import com.google.gson.JsonParseException;
  *            tipo da entidade
  */
 public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonDeserializer<T> {
+	private static final Map<Class<?>, Method> annotations = new HashMap<Class<?>, Method>() {
+		{
+			try {
+				put(OneToMany.class, OneToMany.class.getMethod("mappedBy"));
+				put(ManyToMany.class, ManyToMany.class.getMethod("mappedBy"));
+				put(OneToOne.class, OneToOne.class.getMethod("mappedBy"));
+			} catch (final Exception e) {
+				throw new NoSuchElementException();
+			}
+		}
+		private static final long serialVersionUID = 1L;
+	};
 	private final Logger logger = LogManager.getLogger(JpaDeserializer.class);
 	private final EntityManager entityManager;
+	private T model;
 
 	/**
 	 * Construtor Padrão.
@@ -81,7 +99,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	public T getInstance(java.lang.reflect.Type type) {
 		final Class<T> klazz = getClass(type);
 		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
-		final T model = klazz.cast(invoke.constructor().withoutArgs());
+		model = klazz.cast(invoke.constructor().withoutArgs());
 		return model;
 	}
 
@@ -104,12 +122,38 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		return value;
 	}
 
+	public <X extends Annotation>String getMappedBy(final Field field){
+		for (final Entry<Class<?>, Method> entry : annotations.entrySet()) {
+			@SuppressWarnings("unchecked")
+			final Class<X> type = (Class<X>) entry.getKey();
+			final X x = field.getAnnotation(type);
+			if(x == null){
+				continue;
+			}
+			final Method mappedBy = entry.getValue();
+			try {
+				return (String) mappedBy.invoke(x);
+			} catch (final Exception e) {
+				throw new NoSuchElementException();
+			}
+		}
+		throw new NoSuchElementException();
+	}
+
 	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Field field) {
 		final Collection<W> collection = getInstance(field.getType());
-		final java.lang.reflect.Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+		final ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+		final java.lang.reflect.Type[] arguments = parameterizedType.getActualTypeArguments();
+		final java.lang.reflect.Type type = arguments[0];
+		final String mappedBy = getMappedBy(field);
 		for (final JsonElement a : array) {
 			final W object = context.deserialize(a, type);
 			collection.add(object);
+		}
+		if(mappedBy != null && !mappedBy.isEmpty()){
+			for (final  W object : collection) {
+				mirror.on(object).set().field(mappedBy).withValue(model);
+			}
 		}
 		return collection;
 	}

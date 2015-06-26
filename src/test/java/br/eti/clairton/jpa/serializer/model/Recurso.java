@@ -13,6 +13,9 @@ public class Recurso extends Model {
 	@ManyToOne(cascade = CascadeType.ALL)
 	private final Aplicacao aplicacao;
 
+	@ManyToOne
+	private ModelWithEmbedded embedded;
+
 	private final String nome;
 
 	@Deprecated
@@ -32,5 +35,9 @@ public class Recurso extends Model {
 
 	public Aplicacao getAplicacao() {
 		return aplicacao;
+	}
+
+	public ModelWithEmbedded getEmbedded() {
+		return embedded;
 	}
 }

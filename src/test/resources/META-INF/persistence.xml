@@ -6,6 +6,7 @@
 	<persistence-unit name="default">
 		<class>br.eti.clairton.jpa.serializer.model.Aplicacao</class>
 		<class>br.eti.clairton.jpa.serializer.model.Recurso</class>
+		<class>br.eti.clairton.jpa.serializer.model.ModelWithEmbedded</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver" />

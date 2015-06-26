@@ -3,11 +3,13 @@ package br.eti.clairton.jpa.serializer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import net.vidageek.mirror.dsl.Mirror;
 
+@Entity
 public class ModelWithEmbedded extends Model {
 	private static final long serialVersionUID = 6016230217349046379L;
 
@@ -16,7 +18,7 @@ public class ModelWithEmbedded extends Model {
 
 	private String a = "b";
 
-	@OneToMany
+	@OneToMany(mappedBy="embedded")
 	private List<Recurso> recursos = new ArrayList<Recurso>();
 
 	public ModelWithEmbedded() {
