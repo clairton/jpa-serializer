@@ -13,8 +13,6 @@ import java.util.Map;
 
 import net.vidageek.mirror.dsl.Mirror;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,14 +28,14 @@ import com.google.gson.GsonBuilder;
 public class JpaSerializerTest {
 	private final Mirror mirror = new Mirror();
 	private Gson gson;
-	final Logger logger = LogManager.getLogger(JpaSerializerTest.class);
+	private final JpaSerializer<OutroModel> outroModelSerializer = new OutroModelSerializer();
 
 	@Before
 	public void init() {
 		final GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>());
 		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>());
-		builder.registerTypeAdapter(OutroModel.class, new JpaSerializer<OutroModel>());
+		builder.registerTypeAdapter(OutroModel.class, outroModelSerializer);
 		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>());
 		builder.registerTypeAdapter(ModelOneToOne.class, new JpaSerializer<ModelOneToOne>());
 		gson = builder.create();
@@ -69,11 +67,11 @@ public class JpaSerializerTest {
 	}
 
 	@Test
-	public void testAddIgnoreFlied() {
+	public void testAddIgnoreField() {
+		assertEquals(Mode.IGNORE, outroModelSerializer.nodes().get("nome"));
 		final Long idAplicacao = 1000l;
 		final OutroModel outroModel = new OutroModel("teste");
 		mirror.on(outroModel).set().field("id").withValue(idAplicacao);
-		mirror.on(outroModel).set().field("nome").withValue(null);
 		final String json = gson.toJson(outroModel, OutroModel.class);
 		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
 		assertEquals("PSADGKSADGLDSLÇ", resultado.get("outroValor"));

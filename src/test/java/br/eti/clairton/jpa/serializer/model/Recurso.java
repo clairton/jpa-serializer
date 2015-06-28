@@ -11,12 +11,12 @@ public class Recurso extends Model {
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	private final Aplicacao aplicacao;
+	private Aplicacao aplicacao;
 
 	@ManyToOne
 	private ModelWithEmbedded embedded;
 
-	private final String nome;
+	private String nome;
 
 	@Deprecated
 	public Recurso() {

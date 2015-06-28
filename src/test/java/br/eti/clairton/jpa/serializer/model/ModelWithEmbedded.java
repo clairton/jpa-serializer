@@ -14,7 +14,7 @@ public class ModelWithEmbedded extends Model {
 	private static final long serialVersionUID = 6016230217349046379L;
 
 	@OneToOne
-	private final Aplicacao aplicacao;
+	private Aplicacao aplicacao;
 
 	private String a = "b";
 
