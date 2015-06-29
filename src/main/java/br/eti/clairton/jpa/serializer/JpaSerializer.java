@@ -32,12 +32,7 @@ import com.google.gson.JsonSerializer;
 public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSerializer<T> {
 	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
 
-	public JpaSerializer() {
-		addIgnoredField("serialVersionUID");
-		addIgnoredField("MIRROR");
-		addIgnoredField("logger");
-		addIgnoredField("STYLE");
-	}
+	public JpaSerializer() {}
 
 	public void addIgnoredField(@NotNull final String field) {
 		nodes().put(field, Mode.IGNORE);

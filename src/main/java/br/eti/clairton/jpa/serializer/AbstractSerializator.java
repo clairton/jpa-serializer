@@ -18,7 +18,12 @@ abstract class AbstractSerializator<T> {
 	private final Logger logger = LogManager.getLogger(AbstractSerializator.class);
 	private final Map<String, Mode> nodes = new HashMap<String, Mode>(){
 		private static final long serialVersionUID = 1L;
-
+		{
+			put("serialVersionUID", Mode.IGNORE);
+			put("MIRROR", Mode.IGNORE);
+			put("logger", Mode.IGNORE);
+			put("STYLE", Mode.IGNORE);
+		}
 		@Override
 	    public Mode get(final Object key) {
 			final Mode mode = super.get(key);
