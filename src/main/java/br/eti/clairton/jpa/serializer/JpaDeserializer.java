@@ -164,9 +164,8 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		} else {
 			final W value;
 			try {
-				final InvocationHandler<?> invoker = mirror.on(field.getType()).invoke();
 				@SuppressWarnings("unchecked")
-				final W v = (W) invoker.constructor().withoutArgs();
+				final W v = (W) newInstance(field.getType());
 				value = v;
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
@@ -184,6 +183,14 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 	}
 
+	public <X>X newInstance(final Class<X> klazz){
+		try {
+			return klazz.newInstance();
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field, final JsonElement element) {
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
@@ -195,7 +202,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			final W object;
 			try {
 				@SuppressWarnings("unchecked")
-				final W o = (W) elementType.newInstance();
+				final W o = (W) newInstance(elementType);
 				object = o;
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
