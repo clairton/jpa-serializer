@@ -188,8 +188,9 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		for (final JsonElement jsonElement : array) {
 			final W object;
 			try {
+				java.lang.reflect.Type type = elementType;
 				@SuppressWarnings("unchecked")
-				final W o = (W) elementType.newInstance();
+				final W o = (W) getInstance(type);
 				object = o;
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
