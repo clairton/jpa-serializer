@@ -162,15 +162,9 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		if (JsonNull.class.isInstance(element)) {
 			return null;
 		} else {
-			final W value;
-			try {
-				final InvocationHandler<?> invoker = mirror.on(field.getType()).invoke();
-				@SuppressWarnings("unchecked")
-				final W v = (W) invoker.constructor().withoutArgs();
-				value = v;
-			} catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
+			final java.lang.reflect.Type type = field.getType();
+			@SuppressWarnings("unchecked")
+			final W value = (W) getInstance(type);
 			final Metamodel metamodel = entityManager.getMetamodel();
 			final EntityType<?> entity = metamodel.entity(value.getClass());
 			final Type<?> idType = entity.getIdType();
