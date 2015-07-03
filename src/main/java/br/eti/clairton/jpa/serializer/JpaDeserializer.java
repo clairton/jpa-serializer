@@ -89,6 +89,10 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		final JsonObject jsonObject = (JsonObject) json;
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
+			if(field == null){
+				logger.warn("Field {} não encontrado em {}", entry.getKey(), model.getClass().getSimpleName());
+				continue;
+			}
 			final Object value = getValue(context, entry.getValue(), field);
 			logger.debug("Valor extraido {}#{}={}", type, field.getName(), value);
 			setValue(model, field, value);
