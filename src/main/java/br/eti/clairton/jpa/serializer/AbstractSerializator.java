@@ -66,7 +66,7 @@ abstract class AbstractSerializator<T> {
 		return nodes;
 	}
 
-	public abstract Boolean isToMany(final Field field);
+	protected abstract Boolean isToMany(final Field field);
 
-	public abstract Boolean isToOne(final Field field);
+	protected abstract Boolean isToOne(final Field field);
 }

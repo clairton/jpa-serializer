@@ -63,7 +63,7 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 		}
 	}
 
-	public JsonElement serialize(final Object src, final Field field, final Type type, final JsonSerializationContext context) {
+	protected JsonElement serialize(final Object src, final Field field, final Type type, final JsonSerializationContext context) {
 		final Object value = getValue(context, src, field);
 		if (value == null) {
 			return context.serialize(value);
@@ -72,11 +72,11 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 		}
 	}
 
-	public List<Field> getFields(final Class<T> klazz) {
+	protected List<Field> getFields(final Class<T> klazz) {
 		return mirror.on(klazz).reflectAll().fields();
 	}
 
-	public Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
+	protected Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
@@ -104,14 +104,14 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 	}
 
 	@Override
-	public Boolean isToMany(final Field field) {
+	protected Boolean isToMany(final Field field) {
 		return (field.isAnnotationPresent(ManyToOne.class) || field
 				.isAnnotationPresent(OneToOne.class))
 				&& nodes().isId(field.getName());
 	}
 
 	@Override
-	public Boolean isToOne(final Field field) {
+	protected Boolean isToOne(final Field field) {
 		return (field.isAnnotationPresent(OneToMany.class) || field
 				.isAnnotationPresent(ManyToMany.class))
 				&& nodes().isId(field.getName());

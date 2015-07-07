@@ -101,14 +101,14 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		return model;
 	}
 
-	public T getInstance(java.lang.reflect.Type type) {
+	protected T getInstance(java.lang.reflect.Type type) {
 		final Class<T> klazz = getClass(type);
 		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
 		model = klazz.cast(invoke.constructor().withoutArgs());
 		return model;
 	}
 
-	public Object getValue(final JsonDeserializationContext context, final JsonElement element, final Field field) {
+	protected Object getValue(final JsonDeserializationContext context, final JsonElement element, final Field field) {
 		final Object value;
 		if(field == null){
 			value = null;
@@ -126,7 +126,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		return value;
 	}
 
-	public <W>W getValue(final JsonDeserializationContext context, final String field, final Class<?> type, final JsonElement element){
+	protected <W>W getValue(final JsonDeserializationContext context, final String field, final Class<?> type, final JsonElement element){
 		final W value;
 		if(nodes().isReload(field)){
 			@SuppressWarnings("unchecked")
@@ -159,7 +159,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		throw new NoSuchElementException();
 	}
 
-	public Class<?> getRawType(final Field field){
+	protected Class<?> getRawType(final Field field){
 		final ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
 		final java.lang.reflect.Type[] arguments = parameterizedType.getActualTypeArguments();
 		try {
@@ -185,7 +185,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		return collection;
 	}
 
-	public <W> W toOne(final JsonDeserializationContext context, final Field field, JsonElement element) {
+	protected <W> W toOne(final JsonDeserializationContext context, final Field field, JsonElement element) {
 		if (JsonNull.class.isInstance(element)) {
 			return null;
 		} else {
@@ -210,7 +210,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 	}
 
-	public <X>X newInstance(final Class<X> klazz){
+	protected <X>X newInstance(final Class<X> klazz){
 		try {
 			return klazz.newInstance();
 		} catch (final Exception e) {
@@ -218,7 +218,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 	}
 
-	public <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field, final JsonElement element) {
+	protected <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field, final JsonElement element) {
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
 		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();
@@ -249,7 +249,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	}
 
 	@SuppressWarnings("unchecked")
-	public <Z, W> Z getInstance(final Class<?> type) {
+	protected <Z, W> Z getInstance(final Class<?> type) {
 		Z z = null;
 		if (type.isAssignableFrom(List.class)) {
 			z = (Z) new ArrayList<W>();
@@ -260,14 +260,14 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	}
 
 	@Override
-	public Boolean isToMany(final Field field) {
+	protected Boolean isToMany(final Field field) {
 		return (field.isAnnotationPresent(OneToMany.class) || field
 				.isAnnotationPresent(ManyToMany.class))
 				&& nodes().isId(field.getName());
 	}
 
 	@Override
-	public Boolean isToOne(final Field field) {
+	protected Boolean isToOne(final Field field) {
 		return (field.isAnnotationPresent(ManyToOne.class)
 				|| field.isAnnotationPresent(OneToOne.class))
 				&& nodes().isId(field.getName());
