@@ -130,7 +130,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		final W value;
 		if(nodes().isReload(field)){
 			@SuppressWarnings("unchecked")
-			final W w = (W) entityManager.find(type, element.getAsLong());
+			final W w = (W) entityManager.find(type, unwrapId(type, element));
 			value = w;
 			if(value == null){
 				throw new EntityNotFoundException();
@@ -139,6 +139,20 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			value = context.deserialize(element, type);
 		}
 		return value;
+	}
+
+	protected Object unwrapId(final Class<?> type, final JsonElement element){
+		final Metamodel metamodel = entityManager.getMetamodel();
+		final EntityType<?> entity = metamodel.entity(type);
+		final Type<?> entityType = entity.getIdType();
+		final Class<?> idType = entityType.getJavaType();
+		if(Long.class.equals(idType)){
+			return element.getAsLong();
+		}else if(Integer.class.equals(idType)){
+			return element.getAsInt();
+		}else{
+			return element.getAsString();
+		}
 	}
 
 	public <X extends Annotation>String getMappedBy(final Field field){
