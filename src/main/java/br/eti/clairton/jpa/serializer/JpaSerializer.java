@@ -49,7 +49,7 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 			final List<Field> fields = getFields(klazz);
 			for (final Field field : fields) {
 				final String tag = field.getName();
-				if (nodes().get(tag).equals(Mode.IGNORE)) {
+				if (nodes().isIgnore(tag)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
@@ -107,13 +107,13 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 	public Boolean isToMany(final Field field) {
 		return (field.isAnnotationPresent(ManyToOne.class) || field
 				.isAnnotationPresent(OneToOne.class))
-				&& nodes().get(field.getName()).equals(Mode.ID);
+				&& nodes().isId(field.getName());
 	}
 
 	@Override
 	public Boolean isToOne(final Field field) {
 		return (field.isAnnotationPresent(OneToMany.class) || field
 				.isAnnotationPresent(ManyToMany.class))
-				&& nodes().get(field.getName()).equals(Mode.ID);
+				&& nodes().isId(field.getName());
 	}
 }

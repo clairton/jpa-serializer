@@ -167,22 +167,28 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			return null;
 		} else {
 			final W value;
-			try {
-				@SuppressWarnings("unchecked")
-				final W v = (W) newInstance(field.getType());
-				value = v;
-			} catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
 			final Metamodel metamodel = entityManager.getMetamodel();
-			final EntityType<?> entity = metamodel.entity(value.getClass());
-			final Type<?> idType = entity.getIdType();
-			final Class<?> t = idType.getJavaType();
-			final Attribute<?, ?> attribute = entity.getId(t);
-			final String fieldIdName = attribute.getName();
-			final SetterHandler handler = mirror.on(value).set();
-			final FieldSetter fieldSetter = handler.field(fieldIdName);
-			fieldSetter.withValue(element.getAsLong());
+			final EntityType<?> entity = metamodel.entity(field.getType());
+			final Type<?> entityType = entity.getIdType();
+			final Class<?> idType = entityType.getJavaType();
+			if(nodes().isReload(field.getName())){
+				@SuppressWarnings("unchecked")
+				final W v = (W) entityManager.find(field.getType(), element.getAsLong());
+				value = v;
+			}else{
+				try {
+					@SuppressWarnings("unchecked")
+					final W v = (W) newInstance(field.getType());
+					value = v;
+				} catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+				final Attribute<?, ?> attribute = entity.getId(idType);
+				final String fieldIdName = attribute.getName();
+				final SetterHandler handler = mirror.on(value).set();
+				final FieldSetter fieldSetter = handler.field(fieldIdName);
+				fieldSetter.withValue(element.getAsLong());
+			}
 			return value;
 		}
 	}
@@ -240,13 +246,13 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	public Boolean isToMany(final Field field) {
 		return (field.isAnnotationPresent(OneToMany.class) || field
 				.isAnnotationPresent(ManyToMany.class))
-				&& nodes().get(field.getName()).equals(Mode.ID);
+				&& nodes().isId(field.getName());
 	}
 
 	@Override
 	public Boolean isToOne(final Field field) {
 		return (field.isAnnotationPresent(ManyToOne.class)
 				|| field.isAnnotationPresent(OneToOne.class))
-				&& nodes().get(field.getName()).equals(Mode.ID);
+				&& nodes().isId(field.getName());
 	}
 }
