@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -21,6 +22,11 @@ import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
 import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
 import br.eti.clairton.jpa.serializer.model.OutroModel;
 import br.eti.clairton.jpa.serializer.model.Recurso;
+import br.eti.clairton.jpa.serializer.model.SuperAplicacao;
+import br.eti.clairton.jpa.serializer.model.SuperRecurso;
+import br.eti.clairton.jpa.serializer.serializers.AplicacaoDeserializer;
+import br.eti.clairton.jpa.serializer.serializers.SuperAplicacaoDeserializer;
+import br.eti.clairton.jpa.serializer.serializers.SuperRecursoDeserializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,6 +35,8 @@ public class JpaDeserializerTest {
 	private final Mirror mirror = new Mirror();
 	final Logger logger = LogManager.getLogger(JpaDeserializerTest.class);
 	private Gson gson;
+	private Aplicacao aplicacao;
+	private Recurso recurso;
 
 	@Before
 	public void init() {
@@ -41,6 +49,18 @@ public class JpaDeserializerTest {
 		builder.registerTypeAdapter(OutroModel.class, new JpaDeserializer<OutroModel>(em) {});
 		builder.registerTypeAdapter(ModelManyToMany.class, new JpaDeserializer<ModelManyToMany>(em) {});
 		builder.registerTypeAdapter(ModelOneToOne.class,new JpaDeserializer<ModelOneToOne>(em) {});
+		builder.registerTypeAdapter(SuperRecurso.class,new SuperRecursoDeserializer(em) {});
+		builder.registerTypeAdapter(SuperAplicacao.class,new SuperAplicacaoDeserializer(em) {});
+
+		em.getTransaction().begin();
+		aplicacao = new Aplicacao("Teste"+ new Date().getTime());
+		em.persist(aplicacao);
+		recurso = new Recurso(aplicacao, "Teste"+ new Date().getTime());
+		em.persist(recurso);
+		em.flush();
+		em.clear();
+		em.getTransaction().commit();
+
 		gson = builder.create();
 	}
 
@@ -59,6 +79,25 @@ public class JpaDeserializerTest {
 		assertEquals(idRecurso, result.getId());
 		assertEquals(idAplicacao, aplicacao.getId());
 		assertNull(aplicacao.getNome());
+	}
+
+	@Test
+	public void testReload() {
+		final String json = "{id:'2000',nome:'Teste',aplicacao:'"+aplicacao.getId()+"'}";
+		final SuperRecurso result = gson.fromJson(json, SuperRecurso.class);
+		assertEquals("Teste", result.getNome());
+		assertEquals(Long.valueOf(2000l), result.getId());
+		assertEquals(aplicacao.getId(), result.getAplicacao().getId());
+		assertEquals(aplicacao.getNome(), result.getAplicacao().getNome());
+	}
+
+	@Test
+	public void testReloadCollection() {
+		final String json = "{\"recursos\":["+recurso.getId()+"],\"nome\":\"Teste\",\"id\":"+aplicacao.getId()+"}";
+		final SuperAplicacao result = gson.fromJson(json, SuperAplicacao.class);
+		assertEquals(aplicacao.getId(), result.getId());
+		assertEquals(recurso.getId(), result.getRecursos().get(0).getId());
+		assertEquals(recurso.getNome(), result.getRecursos().get(0).getNome());
 	}
 
 	@Test

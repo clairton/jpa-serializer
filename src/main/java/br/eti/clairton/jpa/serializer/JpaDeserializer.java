@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -119,9 +120,23 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			if(JsonArray.class.isInstance(element)){
 				value = getValueCollection(context, element.getAsJsonArray(), field);
 			} else {
-				final java.lang.reflect.Type t = field.getType();
-				value = context.deserialize(element, t);
+				value = getValue(context, field.getName(), field.getType(), element);
 			}
+		}
+		return value;
+	}
+
+	public <W>W getValue(final JsonDeserializationContext context, final String field, final Class<?> type, final JsonElement element){
+		final W value;
+		if(nodes().isReload(field)){
+			@SuppressWarnings("unchecked")
+			final W w = (W) entityManager.find(type, element.getAsLong());
+			value = w;
+			if(value == null){
+				throw new EntityNotFoundException();
+			}
+		}else{
+			value = context.deserialize(element, type);
 		}
 		return value;
 	}
@@ -144,14 +159,22 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		throw new NoSuchElementException();
 	}
 
-	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Field field) {
-		final Collection<W> collection = getInstance(field.getType());
+	public Class<?> getRawType(final Field field){
 		final ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
 		final java.lang.reflect.Type[] arguments = parameterizedType.getActualTypeArguments();
-		final java.lang.reflect.Type type = arguments[0];
+		try {
+			return Class.forName(arguments[0].toString().replace("class ", ""));
+		} catch (final ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Field field) {
+		final Collection<W> collection = getInstance(field.getType());
+		final Class<?> type = getRawType(field);
 		final String mappedBy = getMappedBy(field);
 		for (final JsonElement a : array) {
-			final W object = context.deserialize(a, type);
+			final W object = getValue(context, field.getName(), type, a);
 			collection.add(object);
 		}
 		if(mappedBy != null && !mappedBy.isEmpty()){
@@ -171,24 +194,18 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			final EntityType<?> entity = metamodel.entity(field.getType());
 			final Type<?> entityType = entity.getIdType();
 			final Class<?> idType = entityType.getJavaType();
-			if(nodes().isReload(field.getName())){
+			try {
 				@SuppressWarnings("unchecked")
-				final W v = (W) entityManager.find(field.getType(), element.getAsLong());
+				final W v = (W) newInstance(field.getType());
 				value = v;
-			}else{
-				try {
-					@SuppressWarnings("unchecked")
-					final W v = (W) newInstance(field.getType());
-					value = v;
-				} catch (final Exception e) {
-					throw new RuntimeException(e);
-				}
-				final Attribute<?, ?> attribute = entity.getId(idType);
-				final String fieldIdName = attribute.getName();
-				final SetterHandler handler = mirror.on(value).set();
-				final FieldSetter fieldSetter = handler.field(fieldIdName);
-				fieldSetter.withValue(element.getAsLong());
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
 			}
+			final Attribute<?, ?> attribute = entity.getId(idType);
+			final String fieldIdName = attribute.getName();
+			final SetterHandler handler = mirror.on(value).set();
+			final FieldSetter fieldSetter = handler.field(fieldIdName);
+			fieldSetter.withValue(element.getAsLong());
 			return value;
 		}
 	}

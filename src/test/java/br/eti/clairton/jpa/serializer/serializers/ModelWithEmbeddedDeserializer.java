@@ -1,7 +1,9 @@
-package br.eti.clairton.jpa.serializer;
+package br.eti.clairton.jpa.serializer.serializers;
 
 import javax.persistence.EntityManager;
 
+import br.eti.clairton.jpa.serializer.JpaDeserializer;
+import br.eti.clairton.jpa.serializer.Mode;
 import br.eti.clairton.jpa.serializer.model.ModelWithEmbedded;
 
 public class ModelWithEmbeddedDeserializer extends JpaDeserializer<ModelWithEmbedded> {

@@ -12,6 +12,8 @@ import org.junit.Test;
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 import br.eti.clairton.jpa.serializer.model.ModelWithEmbedded;
 import br.eti.clairton.jpa.serializer.model.Recurso;
+import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedDeserializer;
+import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

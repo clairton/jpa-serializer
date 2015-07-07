@@ -21,6 +21,7 @@ import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
 import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
 import br.eti.clairton.jpa.serializer.model.OutroModel;
 import br.eti.clairton.jpa.serializer.model.Recurso;
+import br.eti.clairton.jpa.serializer.serializers.OutroModelSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
