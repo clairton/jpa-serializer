@@ -20,6 +20,7 @@ public class FooSerializer extends JpaSerializer<Foo> {
 ```
 
 The Mode should be:
+
 *ID: serialize/deserialize only id. aplicacao:{recursos[1,2,3]}
 
 *RELOAD: deserialize reload item with entityManager by id. aplicacao:{recursos[1,2,3]} -> aplicao.getRecursos().get(0).getNome()
