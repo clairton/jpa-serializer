@@ -3,8 +3,8 @@ Serialize JPA entities for JSON ActiveModelSerializer Style with GSON.
 To Use example:
 ```java
 public class FooDeserializer extends JpaDeserializer<Foo> {
-	public FooDeserializer(final @NotNull EntityManager entityManager) {
-		super(entityManager, mirror, logger);
+	public FooDeserializer(final EntityManager entityManager) {
+		super(entityManager);
 	}
 }
 public class FooSerializer extends JpaSerializer<Foo> {}
@@ -18,6 +18,15 @@ public class FooSerializer extends JpaSerializer<Foo> {
 }	
 
 ```
+
+The Mode should be:
+ *ID: serialize/deserialize only id
+ 	aplicacao:{recursos[1,2,3]}
+ *RELOAD: deserialize reload item with entityManager by id
+ 	aplicacao:{recursos[1,2,3]} -> aplicao.getRecursos().get(0).getNome()
+ *RECORD: serialize/deserialize embedded item
+ 	aplicacao:{recursos[{id:1, nome: "save"}]}
+ *IGNORE: serialize/deserialize ignore this item
 
 Download throught maven, dependency:
 ```xml
