@@ -128,7 +128,9 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 
 	protected <W>W getValue(final JsonDeserializationContext context, final String field, final Class<?> type, final JsonElement element){
 		final W value;
-		if(nodes().isReload(field)){
+		if(JsonNull.class.isInstance(element)){
+			value = null;
+		}else if(nodes().isReload(field)){
 			@SuppressWarnings("unchecked")
 			final W w = (W) entityManager.find(type, unwrapId(type, element));
 			value = w;
@@ -142,6 +144,9 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	}
 
 	protected Object unwrapId(final Class<?> type, final JsonElement element){
+		if(JsonNull.class.isInstance(element)){
+			return null;
+		}
 		final Metamodel metamodel = entityManager.getMetamodel();
 		final EntityType<?> entity = metamodel.entity(type);
 		final Type<?> entityType = entity.getIdType();
