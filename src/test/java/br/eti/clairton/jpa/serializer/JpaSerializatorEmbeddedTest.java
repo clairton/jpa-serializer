@@ -38,7 +38,7 @@ public class JpaSerializatorEmbeddedTest {
 
 	@Test
 	public void testSerialize() {
-		final String toCompare = "{\"aplicacao\":{\"recursos\":[{\"nome\":\"inserir\",\"id\":456}],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[456]}";
+		final String toCompare = "{\"aplicacao\":{\"aplicacoes\":[],\"recursos\":[{\"nome\":\"inserir\",\"id\":456}],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[456]}";
 		final String json = gson.toJson(object, t);
 		assertEquals(toCompare, json);
 	}

@@ -26,11 +26,6 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.Type;
 import javax.validation.constraints.NotNull;
 
-import net.vidageek.mirror.dsl.Mirror;
-import net.vidageek.mirror.invoke.dsl.InvocationHandler;
-import net.vidageek.mirror.set.dsl.FieldSetter;
-import net.vidageek.mirror.set.dsl.SetterHandler;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,6 +36,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+
+import net.vidageek.mirror.dsl.Mirror;
+import net.vidageek.mirror.invoke.dsl.InvocationHandler;
+import net.vidageek.mirror.set.dsl.FieldSetter;
+import net.vidageek.mirror.set.dsl.SetterHandler;
 
 /**
  * Deserializa um JSON para um entidade JPA usando o Gson.
@@ -65,7 +65,6 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	};
 	private final Logger logger = LogManager.getLogger(JpaDeserializer.class);
 	private final EntityManager entityManager;
-	private T model;
 
 	/**
 	 * Construtor Padrão.
@@ -94,7 +93,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 				logger.warn("Field {} não encontrado em {}", entry.getKey(), model.getClass().getSimpleName());
 				continue;
 			}
-			final Object value = getValue(context, entry.getValue(), field);
+			final Object value = getValue(context, entry.getValue(), model, field);
 			logger.debug("Valor extraido {}#{}={}", type, field.getName(), value);
 			setValue(model, field, value);
 		}
@@ -104,11 +103,10 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 	protected T getInstance(java.lang.reflect.Type type) {
 		final Class<T> klazz = getClass(type);
 		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
-		model = klazz.cast(invoke.constructor().withoutArgs());
-		return model;
+		return klazz.cast(invoke.constructor().withoutArgs());
 	}
 
-	protected Object getValue(final JsonDeserializationContext context, final JsonElement element, final Field field) {
+	protected Object getValue(final JsonDeserializationContext context, final JsonElement element, final Object target, final Field field) {
 		final Object value;
 		if(field == null){
 			value = null;
@@ -118,7 +116,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			value = toOne(context, field, element);
 		} else {
 			if(JsonArray.class.isInstance(element)){
-				value = getValueCollection(context, element.getAsJsonArray(), field);
+				value = getValueCollection(context, element.getAsJsonArray(), target, field);
 			} else {
 				value = getValue(context, field.getName(), field.getType(), element);
 			}
@@ -188,7 +186,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 	}
 
-	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Field field) {
+	public <W>Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Object target,  final Field field) {
 		final Collection<W> collection = getInstance(field.getType());
 		final Class<?> type = getRawType(field);
 		final String mappedBy = getMappedBy(field);
@@ -198,7 +196,7 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		}
 		if(mappedBy != null && !mappedBy.isEmpty()){
 			for (final  W object : collection) {
-				mirror.on(object).set().field(mappedBy).withValue(model);
+				mirror.on(object).set().field(mappedBy).withValue(target);
 			}
 		}
 		return collection;

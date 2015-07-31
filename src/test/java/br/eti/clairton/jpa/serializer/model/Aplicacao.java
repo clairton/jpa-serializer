@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -20,6 +21,12 @@ import javax.persistence.Table;
 @Table(name = "aplicacoes")
 public class Aplicacao extends Model {
 	private static final long serialVersionUID = 1L;
+
+	@ManyToOne(cascade = CascadeType.ALL)
+	private Aplicacao aplicacao;
+
+	@OneToMany(mappedBy = "aplicacao", cascade = CascadeType.ALL)
+	private List<Aplicacao> aplicacoes = new ArrayList<Aplicacao>();
 
 	@OneToMany(mappedBy = "aplicacao", cascade = CascadeType.ALL)
 	private List<Recurso> recursos = new ArrayList<Recurso>();
@@ -86,5 +93,9 @@ public class Aplicacao extends Model {
 
 	public String getNome() {
 		return nome;
+	}
+	
+	public Aplicacao getAplicacao() {
+		return aplicacao;
 	}
 }

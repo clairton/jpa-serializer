@@ -143,5 +143,4 @@ public class JpaDeserializerTest {
 		assertEquals(Long.valueOf(444l), result.getAplicacoes().get(0).getId());
 		assertEquals(Long.valueOf(555l), result.getAplicacoes().get(1).getId());
 	}
-
 }
