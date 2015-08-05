@@ -2,20 +2,21 @@ package br.eti.clairton.jpa.serializer;
 
 import java.lang.reflect.Field;
 
-import net.vidageek.mirror.dsl.AccessorsController;
-import net.vidageek.mirror.dsl.ClassController;
-import net.vidageek.mirror.dsl.Mirror;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
 
-abstract class AbstractSerializator<T> {
+import net.vidageek.mirror.dsl.AccessorsController;
+import net.vidageek.mirror.dsl.ClassController;
+import net.vidageek.mirror.dsl.Mirror;
+
+abstract class AbstractSerializator<T> extends Tagable<T> {
 	protected final Mirror mirror = new Mirror();
 	private final Logger logger = LogManager.getLogger(AbstractSerializator.class);
-	private final Nodes nodes = new Nodes(){
+	private final Nodes nodes = new Nodes() {
 		private static final long serialVersionUID = 1L;
+
 		{
 			put("serialVersionUID", Mode.IGNORE);
 			put("MIRROR", Mode.IGNORE);
@@ -62,7 +63,7 @@ abstract class AbstractSerializator<T> {
 		}
 	}
 
-	public Nodes nodes(){
+	public Nodes nodes() {
 		return nodes;
 	}
 
