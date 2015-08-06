@@ -17,7 +17,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.metamodel.Attribute;
@@ -110,9 +109,9 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 		final Object value;
 		if(field == null){
 			value = null;
-		} else if (isToMany(field)) {
-			value = toMany(context, field, element);
 		} else if (isToOne(field)) {
+			value = toMany(context, field, element);
+		} else if (isToMany(field)) {
 			value = toOne(context, field, element);
 		} else {
 			if(JsonArray.class.isInstance(element)){
@@ -274,19 +273,5 @@ public class JpaDeserializer<T> extends AbstractSerializator<T> implements JsonD
 			z = (Z) new HashSet<W>();
 		}
 		return z;
-	}
-
-	@Override
-	protected Boolean isToMany(final Field field) {
-		return (field.isAnnotationPresent(OneToMany.class) || field
-				.isAnnotationPresent(ManyToMany.class))
-				&& nodes().isId(field.getName());
-	}
-
-	@Override
-	protected Boolean isToOne(final Field field) {
-		return (field.isAnnotationPresent(ManyToOne.class)
-				|| field.isAnnotationPresent(OneToOne.class))
-				&& nodes().isId(field.getName());
 	}
 }

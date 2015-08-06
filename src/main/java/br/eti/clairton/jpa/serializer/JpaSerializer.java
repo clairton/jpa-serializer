@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -101,19 +97,5 @@ public class JpaSerializer<T> extends AbstractSerializator<T> implements JsonSer
 		}
 		logger.debug("Valor extraido {}#{}={}", klazz, tag, value);
 		return value;
-	}
-
-	@Override
-	protected Boolean isToMany(final Field field) {
-		return (field.isAnnotationPresent(ManyToOne.class) || field
-				.isAnnotationPresent(OneToOne.class))
-				&& nodes().isId(field.getName());
-	}
-
-	@Override
-	protected Boolean isToOne(final Field field) {
-		return (field.isAnnotationPresent(OneToMany.class) || field
-				.isAnnotationPresent(ManyToMany.class))
-				&& nodes().isId(field.getName());
 	}
 }

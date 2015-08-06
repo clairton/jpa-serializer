@@ -2,6 +2,11 @@ package br.eti.clairton.jpa.serializer;
 
 import java.lang.reflect.Field;
 
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,7 +72,15 @@ abstract class AbstractSerializator<T> extends Tagable<T> {
 		return nodes;
 	}
 
-	protected abstract Boolean isToMany(final Field field);
+	protected Boolean isToMany(final Field field) {
+		return (field.isAnnotationPresent(ManyToOne.class) || field
+				.isAnnotationPresent(OneToOne.class))
+				&& nodes().isId(field.getName());
+	}
 
-	protected abstract Boolean isToOne(final Field field);
+	protected Boolean isToOne(final Field field) {
+		return (field.isAnnotationPresent(OneToMany.class) || field
+				.isAnnotationPresent(ManyToMany.class))
+				&& nodes().isId(field.getName());
+	}
 }
