@@ -45,12 +45,12 @@ public class JpaDeserializerTest {
 				.createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
 		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(em));
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em) {});
-		builder.registerTypeAdapter(OutroModel.class, new JpaSerializer<OutroModel>(em) {});
-		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>(em) {});
-		builder.registerTypeAdapter(ModelOneToOne.class,new JpaSerializer<ModelOneToOne>(em) {});
-		builder.registerTypeAdapter(SuperRecurso.class,new SuperRecursoDeserializer(em) {});
-		builder.registerTypeAdapter(SuperAplicacao.class,new SuperAplicacaoDeserializer(em) {});
+		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
+		builder.registerTypeAdapter(OutroModel.class, new GsonJpaSerializer<OutroModel>(em));
+		builder.registerTypeAdapter(ModelManyToMany.class, new GsonJpaSerializer<ModelManyToMany>(em));
+		builder.registerTypeAdapter(ModelOneToOne.class,new GsonJpaSerializer<ModelOneToOne>(em));
+		builder.registerTypeAdapter(SuperRecurso.class,new SuperRecursoDeserializer(em));
+		builder.registerTypeAdapter(SuperAplicacao.class,new SuperAplicacaoDeserializer(em));
 
 		em.getTransaction().begin();
 		aplicacao = new Aplicacao("Teste"+ new Date().getTime());

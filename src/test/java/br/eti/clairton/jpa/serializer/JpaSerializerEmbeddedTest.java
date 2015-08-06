@@ -29,8 +29,8 @@ public class JpaSerializerEmbeddedTest {
 		final EntityManagerFactory emf = createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
 		builder.registerTypeAdapter(t, new ModelWithEmbeddedSerializer(em));
-		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>(em));
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em));
+		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(em));
+		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
 		gson = builder.create();
 	}
 

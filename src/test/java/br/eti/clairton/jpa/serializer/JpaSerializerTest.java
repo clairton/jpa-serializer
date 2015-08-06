@@ -32,7 +32,7 @@ import net.vidageek.mirror.dsl.Mirror;
 public class JpaSerializerTest {
 	private final Mirror mirror = new Mirror();
 	private Gson gson;
-	private JpaSerializer<OutroModel> outroModelSerializer;
+	private GsonJpaSerializer<OutroModel> outroModelSerializer;
 
 	@Before
 	public void init() {
@@ -40,11 +40,11 @@ public class JpaSerializerTest {
 		final EntityManagerFactory emf = createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
 		outroModelSerializer = new OutroModelSerializer(em);
-		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>(em));
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em));
+		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(em));
+		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
 		builder.registerTypeAdapter(OutroModel.class, outroModelSerializer);
-		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>(em));
-		builder.registerTypeAdapter(ModelOneToOne.class, new JpaSerializer<ModelOneToOne>(em));
+		builder.registerTypeAdapter(ModelManyToMany.class, new GsonJpaSerializer<ModelManyToMany>(em));
+		builder.registerTypeAdapter(ModelOneToOne.class, new GsonJpaSerializer<ModelOneToOne>(em));
 		gson = builder.create();
 	}
 

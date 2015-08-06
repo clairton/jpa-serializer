@@ -22,7 +22,7 @@ public class JpaDeserializerAutoRelationTest {
 	public void init() {
 		final GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoAutoRelationDeserializer(null));
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(null));
+		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(null));
 		gson = builder.create();
 	}
 

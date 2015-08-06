@@ -2,17 +2,17 @@
 Serialize JPA entities for JSON ActiveModelSerializer Style with GSON.
 To Use example:
 ```java
-public class FooDeserializer extends JpaDeserializer<Foo> {
+public class FooSerializer extends GsonJpaSerializer<Foo> {
 	public FooDeserializer(final EntityManager entityManager) {
 		super(entityManager);
 	}
 }
-public class FooSerializer extends JpaSerializer<Foo> {}
 ```	
 For  embedded field configure:
 ```java
-public class FooSerializer extends JpaSerializer<Foo> {
-	public FooSerializer(){
+public class FooSerializer extends GsonJpaSerializer<Foo> {
+	public FooDeserializer(final EntityManager entityManager) {
+		super(entityManager);
 		nodes().put("fieldNameString", Mode.RECORD);
 	}
 }	

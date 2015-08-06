@@ -8,12 +8,13 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import br.eti.clairton.jpa.serializer.JpaSerializer;
+import br.eti.clairton.jpa.serializer.GsonJpaSerializer;
 import br.eti.clairton.jpa.serializer.Mode;
 import br.eti.clairton.jpa.serializer.Operation;
 import br.eti.clairton.jpa.serializer.model.SuperAplicacao;
 
-public class SuperAplicacaoDeserializer extends JpaSerializer<SuperAplicacao>{
+public class SuperAplicacaoDeserializer extends GsonJpaSerializer<SuperAplicacao>{
+	private static final long serialVersionUID = 1L;
 
 	public SuperAplicacaoDeserializer(final EntityManager em) {
 		super(em);

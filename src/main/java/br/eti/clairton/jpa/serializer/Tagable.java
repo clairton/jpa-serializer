@@ -1,9 +1,11 @@
 package br.eti.clairton.jpa.serializer;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 
-public abstract class Tagable<T> {
+public abstract class Tagable<T> implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Return the tag name for single object serialization/deserialization.
