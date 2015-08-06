@@ -1,6 +1,7 @@
 package br.eti.clairton.jpa.serializer;
 
 import static java.util.Arrays.asList;
+import static javax.persistence.Persistence.createEntityManagerFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -11,10 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.vidageek.mirror.dsl.Mirror;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
@@ -22,23 +27,24 @@ import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
 import br.eti.clairton.jpa.serializer.model.OutroModel;
 import br.eti.clairton.jpa.serializer.model.Recurso;
 import br.eti.clairton.jpa.serializer.serializers.OutroModelSerializer;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import net.vidageek.mirror.dsl.Mirror;
 
 public class JpaSerializerTest {
 	private final Mirror mirror = new Mirror();
 	private Gson gson;
-	private final JpaSerializer<OutroModel> outroModelSerializer = new OutroModelSerializer();
+	private JpaSerializer<OutroModel> outroModelSerializer;
 
 	@Before
 	public void init() {
 		final GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>());
-		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>());
+		final EntityManagerFactory emf = createEntityManagerFactory("default");
+		final EntityManager em = emf.createEntityManager();
+		outroModelSerializer = new OutroModelSerializer(em);
+		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>(em));
+		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em));
 		builder.registerTypeAdapter(OutroModel.class, outroModelSerializer);
-		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>());
-		builder.registerTypeAdapter(ModelOneToOne.class, new JpaSerializer<ModelOneToOne>());
+		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>(em));
+		builder.registerTypeAdapter(ModelOneToOne.class, new JpaSerializer<ModelOneToOne>(em));
 		gson = builder.create();
 	}
 
@@ -69,7 +75,7 @@ public class JpaSerializerTest {
 
 	@Test
 	public void testAddIgnoreField() {
-		assertEquals(Mode.IGNORE, outroModelSerializer.nodes().get("nome"));
+		assertEquals(Mode.IGNORE, outroModelSerializer.nodes().get("nome").getMode());
 		final Long idAplicacao = 1000l;
 		final OutroModel outroModel = new OutroModel("teste");
 		mirror.on(outroModel).set().field("id").withValue(idAplicacao);

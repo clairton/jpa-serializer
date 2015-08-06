@@ -9,16 +9,15 @@ import javax.persistence.EntityManagerFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import br.eti.clairton.jpa.serializer.model.Aplicacao;
-import br.eti.clairton.jpa.serializer.model.ModelWithEmbedded;
-import br.eti.clairton.jpa.serializer.model.Recurso;
-import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedDeserializer;
-import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedSerializer;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class JpaSerializatorEmbeddedTest {
+import br.eti.clairton.jpa.serializer.model.Aplicacao;
+import br.eti.clairton.jpa.serializer.model.ModelWithEmbedded;
+import br.eti.clairton.jpa.serializer.model.Recurso;
+import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedSerializer;
+
+public class JpaSerializerEmbeddedTest {
 	private Gson gson;
 	private final String json = "{\"aplicacao\":{\"recursos\":[456],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[{\"nome\":\"inserir\",\"id\":456}]}";
 	private ModelWithEmbedded object = new ModelWithEmbedded();
@@ -29,16 +28,15 @@ public class JpaSerializatorEmbeddedTest {
 		final GsonBuilder builder = new GsonBuilder();
 		final EntityManagerFactory emf = createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
-		builder.registerTypeAdapter(t, new ModelWithEmbeddedSerializer());
-		builder.registerTypeAdapter(t, new ModelWithEmbeddedDeserializer(em));
-		builder.registerTypeAdapter(Aplicacao.class, new JpaDeserializer<Aplicacao>(em));
-		builder.registerTypeAdapter(Recurso.class, new JpaDeserializer<Recurso>(em));
+		builder.registerTypeAdapter(t, new ModelWithEmbeddedSerializer(em));
+		builder.registerTypeAdapter(Aplicacao.class, new JpaSerializer<Aplicacao>(em));
+		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em));
 		gson = builder.create();
 	}
 
 	@Test
 	public void testSerialize() {
-		final String toCompare = "{\"aplicacao\":{\"aplicacoes\":[],\"recursos\":[{\"nome\":\"inserir\",\"id\":456}],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[456]}";
+		final String toCompare = "{\"aplicacao\":{\"aplicacoes\":[],\"recursos\":[456],\"nome\":\"Teste\",\"id\":100},\"a\":\"b\",\"recursos\":[{\"nome\":\"inserir\",\"id\":456}]}";
 		final String json = gson.toJson(object, t);
 		assertEquals(toCompare, json);
 	}

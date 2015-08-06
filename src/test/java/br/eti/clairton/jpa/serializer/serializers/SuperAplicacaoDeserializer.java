@@ -4,19 +4,20 @@ import java.lang.reflect.Type;
 
 import javax.persistence.EntityManager;
 
-import br.eti.clairton.jpa.serializer.JpaDeserializer;
-import br.eti.clairton.jpa.serializer.Mode;
-import br.eti.clairton.jpa.serializer.model.SuperAplicacao;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-public class SuperAplicacaoDeserializer extends JpaDeserializer<SuperAplicacao>{
+import br.eti.clairton.jpa.serializer.JpaSerializer;
+import br.eti.clairton.jpa.serializer.Mode;
+import br.eti.clairton.jpa.serializer.Operation;
+import br.eti.clairton.jpa.serializer.model.SuperAplicacao;
+
+public class SuperAplicacaoDeserializer extends JpaSerializer<SuperAplicacao>{
 
 	public SuperAplicacaoDeserializer(final EntityManager em) {
 		super(em);
-		nodes().put("recursos", Mode.RELOAD);
+		nodes().put("recursos", Mode.RELOAD, Operation.DESERIALIZE);
 	}
 
 	@Override

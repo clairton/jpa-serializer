@@ -16,9 +16,9 @@ import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
 import net.vidageek.mirror.dsl.Mirror;
 
-abstract class AbstractSerializator<T> extends Tagable<T> {
+abstract class Serializer<T> extends Tagable<T> {
 	protected final Mirror mirror = new Mirror();
-	private final Logger logger = LogManager.getLogger(AbstractSerializator.class);
+	private final Logger logger = LogManager.getLogger(Serializer.class);
 	private final Nodes nodes = new Nodes() {
 		private static final long serialVersionUID = 1L;
 
@@ -29,6 +29,46 @@ abstract class AbstractSerializator<T> extends Tagable<T> {
 			put("STYLE", Mode.IGNORE);
 		}
 	};
+
+	protected void record(final String field) {
+		config(field, Mode.RECORD);
+	}
+
+	protected void record(final String field, final Operation operation) {
+		config(field, Mode.RECORD, operation);
+	}
+
+	protected void id(final String field) {
+		config(field, Mode.ID);
+	}
+
+	protected void id(final String field, final Operation operation) {
+		config(field, Mode.ID, operation);
+	}
+
+	protected void reload(final String field) {
+		config(field, Mode.RELOAD);
+	}
+
+	protected void reload(final String field, final Operation operation) {
+		config(field, Mode.RELOAD, operation);
+	}
+
+	protected void ignore(final String field) {
+		config(field, Mode.IGNORE);
+	}
+
+	protected void ignore(final String field, final Operation operation) {
+		config(field, Mode.IGNORE, operation);
+	}
+
+	protected void config(final String field, final Mode mode) {
+		nodes().put(field, mode);
+	}
+
+	protected void config(final String field, final Mode mode, final Operation operation) {
+		nodes().put(field, mode, operation);
+	}
 
 	protected Field getField(final Class<?> type, final String field) {
 		final ClassController<?> controller = mirror.on(type);
@@ -73,14 +113,14 @@ abstract class AbstractSerializator<T> extends Tagable<T> {
 	}
 
 	protected Boolean isToMany(final Field field) {
-		return (field.isAnnotationPresent(ManyToOne.class) || field
-				.isAnnotationPresent(OneToOne.class))
-				&& nodes().isId(field.getName());
+		return (field.isAnnotationPresent(ManyToOne.class) || 
+					field.isAnnotationPresent(OneToOne.class)) && 
+						nodes().isId(field.getName());
 	}
 
 	protected Boolean isToOne(final Field field) {
-		return (field.isAnnotationPresent(OneToMany.class) || field
-				.isAnnotationPresent(ManyToMany.class))
-				&& nodes().isId(field.getName());
+		return (field.isAnnotationPresent(OneToMany.class) || 
+					field.isAnnotationPresent(ManyToMany.class)) && 
+						nodes().isId(field.getName());
 	}
 }

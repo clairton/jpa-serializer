@@ -10,7 +10,7 @@ import org.junit.Test;
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 
 public class TagableTest {
-	final Tagable<Aplicacao> tagable = new JpaSerializer<Aplicacao>();
+	final Tagable<Aplicacao> tagable = new JpaSerializer<Aplicacao>(null);
 	final Aplicacao single = new Aplicacao();
 	final Collection<Aplicacao> collection = Arrays.asList(single);
 

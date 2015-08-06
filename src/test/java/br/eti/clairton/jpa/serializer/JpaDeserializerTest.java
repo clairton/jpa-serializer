@@ -45,10 +45,10 @@ public class JpaDeserializerTest {
 				.createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
 		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(em));
-		builder.registerTypeAdapter(Recurso.class, new JpaDeserializer<Recurso>(em) {});
-		builder.registerTypeAdapter(OutroModel.class, new JpaDeserializer<OutroModel>(em) {});
-		builder.registerTypeAdapter(ModelManyToMany.class, new JpaDeserializer<ModelManyToMany>(em) {});
-		builder.registerTypeAdapter(ModelOneToOne.class,new JpaDeserializer<ModelOneToOne>(em) {});
+		builder.registerTypeAdapter(Recurso.class, new JpaSerializer<Recurso>(em) {});
+		builder.registerTypeAdapter(OutroModel.class, new JpaSerializer<OutroModel>(em) {});
+		builder.registerTypeAdapter(ModelManyToMany.class, new JpaSerializer<ModelManyToMany>(em) {});
+		builder.registerTypeAdapter(ModelOneToOne.class,new JpaSerializer<ModelOneToOne>(em) {});
 		builder.registerTypeAdapter(SuperRecurso.class,new SuperRecursoDeserializer(em) {});
 		builder.registerTypeAdapter(SuperAplicacao.class,new SuperAplicacaoDeserializer(em) {});
 
@@ -138,8 +138,7 @@ public class JpaDeserializerTest {
 		final ModelManyToMany object = new ModelManyToMany();
 		final String json = "{'id': '1111', 'aplicacoes': [444,555]}";
 		mirror.on(object).set().field("id").withValue(0l);
-		final ModelManyToMany result = gson.fromJson(json,
-				ModelManyToMany.class);
+		final ModelManyToMany result = gson.fromJson(json, ModelManyToMany.class);
 		assertEquals(Long.valueOf(444l), result.getAplicacoes().get(0).getId());
 		assertEquals(Long.valueOf(555l), result.getAplicacoes().get(1).getId());
 	}

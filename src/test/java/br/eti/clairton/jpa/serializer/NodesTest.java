@@ -14,18 +14,39 @@ public class NodesTest {
 			put("ignore", Mode.IGNORE);
 			put("record", Mode.RECORD);
 			put("reload", Mode.RELOAD);
+			put("reloadOnlySerialize", Mode.RELOAD, Operation.SERIALIZE);
 			put("id", Mode.ID);
 		}
 	};
 
 	@Test
+	public void testGetWhenNotExistOperationOther() {
+		assertEquals(Mode.ID, node.get("reloadOnlySerialize", Operation.DESERIALIZE).getMode());
+	}
+
+	@Test
+	public void testGetWhenExistOperationOther() {
+		assertEquals(Mode.RELOAD, node.get("reloadOnlySerialize", Operation.SERIALIZE).getMode());
+	}
+
+	@Test
+	public void testGetWhenNotExistOperation() {
+		assertEquals(Mode.ID, node.get("xpto", Operation.SERIALIZE).getMode());
+	}
+
+	@Test
+	public void testGetWhenExistOperation() {
+		assertEquals(Mode.RELOAD, node.get("reload", Operation.SERIALIZE).getMode());
+	}
+
+	@Test
 	public void testGetWhenNotExist() {
-		assertEquals(Mode.ID, node.get("xpto"));
+		assertEquals(Mode.ID, node.get("xpto").getMode());
 	}
 
 	@Test
 	public void testGetWhenExist() {
-		assertEquals(Mode.RELOAD, node.get("reload"));
+		assertEquals(Mode.RELOAD, node.get("reload").getMode());
 	}
 
 	@Test
