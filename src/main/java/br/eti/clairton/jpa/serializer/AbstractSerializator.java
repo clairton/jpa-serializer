@@ -25,31 +25,31 @@ abstract class AbstractSerializator<T> extends Tagable<T> {
 		}
 	};
 
-	public Field getField(final Class<?> type, final String field) {
+	protected Field getField(final Class<?> type, final String field) {
 		final ClassController<?> controller = mirror.on(type);
 		return controller.reflect().field(field);
 	}
 
-	public Object getId(final Object target) {
+	protected Object getId(final Object target) {
 		return getValue(target, "id");
 	}
 
-	public Object getValue(final Object target, final String field) {
+	protected Object getValue(final Object target, final String field) {
 		final AccessorsController controller = mirror.on(target);
 		return controller.get().field(field);
 	}
 
-	public Object getValue(final Object target, final Field field) {
+	protected Object getValue(final Object target, final Field field) {
 		final AccessorsController controller = mirror.on(target);
 		return controller.get().field(field);
 	}
 
-	public void setValue(final Object target, final Field field, final Object value) {
+	protected void setValue(final Object target, final Field field, final Object value) {
 		final AccessorsController accessor = mirror.on(target);
 		accessor.set().field(field).withValue(value);
 	}
 
-	public Class<T> getClass(final java.lang.reflect.Type type) {
+	protected Class<T> getClass(final java.lang.reflect.Type type) {
 		final String name = type.toString().replaceAll("class ", "");
 		try {
 			@SuppressWarnings("unchecked")
