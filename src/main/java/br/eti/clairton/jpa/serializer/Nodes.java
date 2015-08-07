@@ -31,38 +31,47 @@ public class Nodes extends HashMap<String, Node>implements Map<String, Node> {
 	}
 
 	public Boolean isReload(final Object key) {
-		return get(key).getMode().equals(Mode.RELOAD);
+		return is(key, Mode.RELOAD);
 	}
 
 	public Boolean isRecord(final Object key) {
-		return get(key).getMode().equals(Mode.RECORD);
+		return is(key, Mode.RECORD);
 	}
 
 	public Boolean isId(final Object key) {
-		return get(key).getMode().equals(Mode.ID);
+		return is(key, Mode.ID);
 	}
 
 	public Boolean isIgnore(final Object key) {
-		return get(key).getMode().equals(Mode.IGNORE);
+		return is(key, Mode.IGNORE);
+	}
+
+	public Boolean is(final Object key, final Mode mode) {
+		final Node node = get(key);
+		return node.getMode().equals(mode) && 
+					node.getOperations().contains(Operation.DESERIALIZE) &&
+						node.getOperations().contains(Operation.SERIALIZE);
+	}
+
+	public Boolean is(final Object key, final Mode mode, final Operation operation) {
+		final Node node = get(key);
+		return node.getMode().equals(mode) && 
+					node.getOperations().contains(operation);
 	}
 
 	public Boolean isReload(final Object key, final Operation operation) {
-		final Node node = get(key);
-		return node.getMode().equals(Mode.RELOAD) && node.getOperations().contains(operation);
+		return is(key, Mode.RELOAD, operation);
 	}
 
 	public Boolean isRecord(final Object key, final Operation operation) {
-		final Node node = get(key);
-		return node.getMode().equals(Mode.RECORD) && node.getOperations().contains(operation);
+		return is(key, Mode.RECORD, operation);
 	}
 
 	public Boolean isId(final Object key, final Operation operation) {
-		final Node node = get(key);
-		return node.getMode().equals(Mode.ID) && node.getOperations().contains(operation);
+		return is(key, Mode.ID, operation);
 	}
 
 	public Boolean isIgnore(final Object key, final Operation operation) {
-		final Node node = get(key);
-		return node.getMode().equals(Mode.IGNORE) && node.getOperations().contains(operation);
+		return is(key, Mode.IGNORE, operation);
 	}
 }

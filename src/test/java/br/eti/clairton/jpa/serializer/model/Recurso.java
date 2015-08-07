@@ -20,9 +20,13 @@ public class Recurso extends Model {
 
 	@Deprecated
 	public Recurso() {
-		this(null, null);
+		this(null);
 	}
 
+	public Recurso(final String nome) {
+		this(null, nome);
+	}
+	
 	public Recurso(final Aplicacao aplicacao, final String nome) {
 		super();
 		this.nome = nome;

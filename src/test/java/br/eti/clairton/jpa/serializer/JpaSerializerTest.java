@@ -1,121 +1,84 @@
 package br.eti.clairton.jpa.serializer;
 
-import static java.util.Arrays.asList;
-import static javax.persistence.Persistence.createEntityManagerFactory;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
-import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
-import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
-import br.eti.clairton.jpa.serializer.model.ModelOneToOne;
-import br.eti.clairton.jpa.serializer.model.OutroModel;
-import br.eti.clairton.jpa.serializer.model.Recurso;
-import br.eti.clairton.jpa.serializer.serializers.OutroModelSerializer;
-import net.vidageek.mirror.dsl.Mirror;
 
-public class JpaSerializerTest {
-	private final Mirror mirror = new Mirror();
-	private Gson gson;
-	private GsonJpaSerializer<OutroModel> outroModelSerializer;
+public class JpaSerializerTest extends JpaSerializer<Aplicacao> {
+	private static final long serialVersionUID = 1L;
+	private JpaSerializer<Aplicacao> serializer = new JpaSerializer<Aplicacao>() {
+		private static final long serialVersionUID = 1L;
+		{
+			record("recordAlways");
+			record("recordSerialize", Operation.SERIALIZE);
+			record("recordDeserialize", Operation.DESERIALIZE);
 
-	@Before
-	public void init() {
-		final GsonBuilder builder = new GsonBuilder();
-		final EntityManagerFactory emf = createEntityManagerFactory("default");
-		final EntityManager em = emf.createEntityManager();
-		outroModelSerializer = new OutroModelSerializer(em);
-		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(em));
-		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
-		builder.registerTypeAdapter(OutroModel.class, outroModelSerializer);
-		builder.registerTypeAdapter(ModelManyToMany.class, new GsonJpaSerializer<ModelManyToMany>(em));
-		builder.registerTypeAdapter(ModelOneToOne.class, new GsonJpaSerializer<ModelOneToOne>(em));
-		gson = builder.create();
+			reload("reloadAlways");
+			reload("reloadSerialize", Operation.SERIALIZE);
+			reload("reloadDeserialize", Operation.DESERIALIZE);
+
+			id("idAlways");
+			id("idSerialize", Operation.SERIALIZE);
+			id("idDeserialize", Operation.DESERIALIZE);
+
+			ignore("ignoreAlways");
+			ignore("ignoreSerialize", Operation.SERIALIZE);
+			ignore("ignoreDeserialize", Operation.DESERIALIZE);
+		}
+	};
+
+	@Test
+	public void testRecord() {
+		assertTrue(serializer.isRecord("recordAlways"));
+
+		assertTrue(serializer.isRecord("recordSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isRecord("recordSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isRecord("recordSerialize"));
+
+		assertFalse(serializer.isRecord("recordDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isRecord("recordDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isRecord("recordDeserialize"));
 	}
 
 	@Test
-	public void testOneToMany() {
-		final Aplicacao object = new Aplicacao("Teste");
-		final Recurso recurso = new Recurso(object, "Teste");
-		final Recurso recurso2 = new Recurso(object, "Outro");
-		mirror.on(object).set().field("id").withValue(0l);
-		mirror.on(recurso).set().field("id").withValue(1l);
-		mirror.on(recurso2).set().field("id").withValue(2l);
-		final List<Recurso> recursos = Arrays.asList(recurso, recurso2);
-		Collections.sort(recursos, new Comparator<Recurso>() {
+	public void testReload() {
+		assertTrue(serializer.isReload("reloadAlways"));
 
-			@Override
-			public int compare(final Recurso o1, final Recurso o2) {
-				return o1.getId().compareTo(o2.getId());
-			}
-		});
-		object.adicionar(recursos);
-		final String json = gson.toJson(object);
-		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
-		final List<?> list = (List<?>) resultado.get("recursos");
-		assertEquals(2, list.size());
-		assertEquals("Teste", resultado.get("nome"));
-		assertEquals(0.0, resultado.get("id"));
+		assertTrue(serializer.isReload("reloadSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isReload("reloadSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isReload("reloadSerialize"));
+
+		assertFalse(serializer.isReload("reloadDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isReload("reloadDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isReload("reloadDeserialize"));
 	}
 
 	@Test
-	public void testAddIgnoreField() {
-		assertEquals(Mode.IGNORE, outroModelSerializer.nodes().get("nome").getMode());
-		final Long idAplicacao = 1000l;
-		final OutroModel outroModel = new OutroModel("teste");
-		mirror.on(outroModel).set().field("id").withValue(idAplicacao);
-		final String json = gson.toJson(outroModel, OutroModel.class);
-		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
-		assertEquals("PSADGKSADGLDSLÇ", resultado.get("outroValor"));
-		assertEquals(1000.0, resultado.get("id"));
-		assertFalse(resultado.containsKey("nome"));
-	}
+	public void testId() {
+		assertTrue(serializer.isId("idAlways"));
 
-	@Test
-	public void testManyToOne() {
-		final Long idAplicacao = 1000l;
-		final Aplicacao aplicacao = new Aplicacao("Teste");
-		mirror.on(aplicacao).set().field("id").withValue(idAplicacao);
-		final Recurso object = new Recurso(aplicacao, "teste");
-		final Long idRecurso = 2000l;
-		mirror.on(object).set().field("id").withValue(idRecurso);
-		final String json = gson.toJson(object, Recurso.class);
-		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
-		assertEquals("teste", resultado.get("nome"));
-		assertEquals(2000.0, resultado.get("id"));
-		assertEquals(1000.0, resultado.get("aplicacao"));
-	}
+		assertTrue(serializer.isId("idSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isId("idSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isId("idSerialize"));
 
-	@Test
-	public void testOneToOne() {
-		final ModelOneToOne model = new ModelOneToOne();
-		mirror.on(model).set().field("id").withValue(1l);
-		final String json = gson.toJson(model, ModelOneToOne.class);
-		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
-		assertEquals(100.0, resultado.get("aplicacao"));
+		assertFalse(serializer.isId("idDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isId("idDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isId("idDeserialize"));
 	}
-
+	
 	@Test
-	public void testManyToMany() {
-		final ModelManyToMany model = new ModelManyToMany();
-		mirror.on(model).set().field("id").withValue(1l);
-		final String json = gson.toJson(model, ModelManyToMany.class);
-		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
-		assertEquals(asList(100.0, 200.0), resultado.get("aplicacoes"));
+	public void testIgnore() {
+		assertTrue(serializer.isIgnore("ignoreAlways"));
+		
+		assertTrue(serializer.isIgnore("ignoreSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isIgnore("ignoreSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isIgnore("ignoreSerialize"));
+		
+		assertFalse(serializer.isIgnore("ignoreDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isIgnore("ignoreDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isIgnore("ignoreDeserialize"));
 	}
 }

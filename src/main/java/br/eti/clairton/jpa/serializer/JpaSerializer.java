@@ -16,7 +16,7 @@ import net.vidageek.mirror.dsl.AccessorsController;
 import net.vidageek.mirror.dsl.ClassController;
 import net.vidageek.mirror.dsl.Mirror;
 
-abstract class JpaSerializer<T> extends Tagable<T> {
+public abstract class JpaSerializer<T> extends Tagable<T> {
 	private static final long serialVersionUID = 1L;
 	protected final Mirror mirror = new Mirror();
 	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
@@ -113,15 +113,49 @@ abstract class JpaSerializer<T> extends Tagable<T> {
 		return nodes;
 	}
 
-	protected Boolean isToMany(final Field field) {
-		return (field.isAnnotationPresent(ManyToOne.class) || 
-					field.isAnnotationPresent(OneToOne.class)) && 
-						nodes().isId(field.getName());
+	protected Boolean isToMany(final Field field, final Operation operation) {
+		return (field.isAnnotationPresent(ManyToOne.class) ||
+					field.isAnnotationPresent(OneToOne.class)) &&
+						!isRecord(field.getName(), operation) && 
+							!isReload(field.getName(), operation);
 	}
 
-	protected Boolean isToOne(final Field field) {
+	protected Boolean isToOne(final Field field, final Operation operation) {
 		return (field.isAnnotationPresent(OneToMany.class) || 
-					field.isAnnotationPresent(ManyToMany.class)) && 
-						nodes().isId(field.getName());
+					field.isAnnotationPresent(ManyToMany.class)) &&
+						!isRecord(field.getName(), operation) && 
+							!isReload(field.getName(), operation);
+	}
+
+	protected Boolean isIgnore(final String key, final Operation operation) {
+		return nodes().isIgnore(key, operation);
+	}
+
+	protected Boolean isIgnore(final String key) {
+		return nodes().isIgnore(key);
+	}
+
+	protected Boolean isId(final String key, final Operation operation) {
+		return nodes().isId(key, operation);
+	}
+
+	protected Boolean isId(final String key) {
+		return nodes().isId(key);
+	}
+
+	protected Boolean isReload(final String key, final Operation operation) {
+		return nodes().isReload(key, operation);
+	}
+
+	protected Boolean isReload(final String key) {
+		return nodes().isReload(key);
+	}
+
+	protected Boolean isRecord(final String key, final Operation operation) {
+		return nodes().isRecord(key, operation);
+	}
+
+	protected Boolean isRecord(final String key) {
+		return nodes().isRecord(key);
 	}
 }

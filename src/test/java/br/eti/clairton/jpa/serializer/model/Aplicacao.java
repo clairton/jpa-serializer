@@ -39,6 +39,11 @@ public class Aplicacao extends Model {
 	public Aplicacao() {
 	}
 
+	public Aplicacao(final Aplicacao aplicacao) {
+		super();
+		this.aplicacao = aplicacao;
+	}
+
 	/**
 	 * Construtor com argumentos.
 	 *

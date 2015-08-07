@@ -15,7 +15,6 @@ import com.google.gson.GsonBuilder;
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 import br.eti.clairton.jpa.serializer.model.ModelWithEmbedded;
 import br.eti.clairton.jpa.serializer.model.Recurso;
-import br.eti.clairton.jpa.serializer.serializers.ModelWithEmbeddedSerializer;
 
 public class JpaSerializerEmbeddedTest {
 	private Gson gson;
@@ -28,7 +27,15 @@ public class JpaSerializerEmbeddedTest {
 		final GsonBuilder builder = new GsonBuilder();
 		final EntityManagerFactory emf = createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
-		builder.registerTypeAdapter(t, new ModelWithEmbeddedSerializer(em));
+		builder.registerTypeAdapter(t, new GsonJpaSerializer<ModelWithEmbedded>(em) {
+			private static final long serialVersionUID = 1L;
+
+			{
+				record("aplicacao");
+				record("recursos");
+
+			}
+		});
 		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(em));
 		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
 		gson = builder.create();

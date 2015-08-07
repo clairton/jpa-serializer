@@ -10,12 +10,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import net.vidageek.mirror.dsl.Mirror;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 import br.eti.clairton.jpa.serializer.model.ModelManyToMany;
@@ -24,12 +25,7 @@ import br.eti.clairton.jpa.serializer.model.OutroModel;
 import br.eti.clairton.jpa.serializer.model.Recurso;
 import br.eti.clairton.jpa.serializer.model.SuperAplicacao;
 import br.eti.clairton.jpa.serializer.model.SuperRecurso;
-import br.eti.clairton.jpa.serializer.serializers.AplicacaoDeserializer;
-import br.eti.clairton.jpa.serializer.serializers.SuperAplicacaoDeserializer;
-import br.eti.clairton.jpa.serializer.serializers.SuperRecursoDeserializer;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import net.vidageek.mirror.dsl.Mirror;
 
 public class JpaDeserializerTest {
 	private final Mirror mirror = new Mirror();
@@ -44,13 +40,25 @@ public class JpaDeserializerTest {
 		final EntityManagerFactory emf = Persistence
 				.createEntityManagerFactory("default");
 		final EntityManager em = emf.createEntityManager();
-		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoDeserializer(em));
+		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(em));
 		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(em));
 		builder.registerTypeAdapter(OutroModel.class, new GsonJpaSerializer<OutroModel>(em));
 		builder.registerTypeAdapter(ModelManyToMany.class, new GsonJpaSerializer<ModelManyToMany>(em));
-		builder.registerTypeAdapter(ModelOneToOne.class,new GsonJpaSerializer<ModelOneToOne>(em));
-		builder.registerTypeAdapter(SuperRecurso.class,new SuperRecursoDeserializer(em));
-		builder.registerTypeAdapter(SuperAplicacao.class,new SuperAplicacaoDeserializer(em));
+		builder.registerTypeAdapter(ModelOneToOne.class, new GsonJpaSerializer<ModelOneToOne>(em));
+		builder.registerTypeAdapter(SuperRecurso.class, new GsonJpaSerializer<SuperRecurso>(em){
+			private static final long serialVersionUID = 1L;
+
+			{
+				reload("aplicacao", Operation.DESERIALIZE);;
+			}
+		});
+		builder.registerTypeAdapter(SuperAplicacao.class,new GsonJpaSerializer<SuperAplicacao>(em){
+			private static final long serialVersionUID = 1L;
+
+			{
+				reload("recursos", Operation.DESERIALIZE);
+			}
+		});
 
 		em.getTransaction().begin();
 		aplicacao = new Aplicacao("Teste"+ new Date().getTime());

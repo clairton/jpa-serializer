@@ -146,7 +146,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
 		logger.debug("Serializando {}#{}", klazz, tag);
-		if (isToOne(field)) {
+		if (isToOne(field, Operation.SERIALIZE)) {
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
 			final Collection<?> models = Collection.class.cast(v);
@@ -154,7 +154,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 				ids.add(getId(model));
 			}
 			value = ids;
-		} else if (isToMany(field)) {
+		} else if (isToMany(field, Operation.SERIALIZE)) {
 			final Object v = getValue(src, field);
 			if (v == null) {
 				value = null;
@@ -168,7 +168,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		return value;
 	}
 
-	protected T getInstance(java.lang.reflect.Type type) {
+	protected T getInstance(final java.lang.reflect.Type type) {
 		final Class<T> klazz = getClass(type);
 		final InvocationHandler<T> invoke = mirror.on(klazz).invoke();
 		return klazz.cast(invoke.constructor().withoutArgs());
@@ -178,9 +178,9 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final Object value;
 		if (field == null) {
 			value = null;
-		} else if (isToOne(field)) {
+		} else if (isToOne(field, Operation.DESERIALIZE)) {
 			value = toMany(context, field, element);
-		} else if (isToMany(field)) {
+		} else if (isToMany(field, Operation.DESERIALIZE)) {
 			value = toOne(context, field, element);
 		} else {
 			if (JsonArray.class.isInstance(element)) {

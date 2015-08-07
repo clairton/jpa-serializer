@@ -11,8 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
-import br.eti.clairton.jpa.serializer.model.Recurso;
-import br.eti.clairton.jpa.serializer.serializers.AplicacaoAutoRelationDeserializer;
 
 public class JpaDeserializerAutoRelationTest {
 	final Logger logger = LogManager.getLogger(JpaDeserializerAutoRelationTest.class);
@@ -21,8 +19,14 @@ public class JpaDeserializerAutoRelationTest {
 	@Before
 	public void init() {
 		final GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Aplicacao.class, new AplicacaoAutoRelationDeserializer(null));
-		builder.registerTypeAdapter(Recurso.class, new GsonJpaSerializer<Recurso>(null));
+		builder.registerTypeAdapter(Aplicacao.class, new GsonJpaSerializer<Aplicacao>(null) {
+			private static final long serialVersionUID = 1L;
+
+			{
+				nodes().put("aplicacao", Mode.RECORD, Operation.DESERIALIZE);
+				nodes().put("recursos", Mode.RECORD, Operation.DESERIALIZE);
+			}
+		});
 		gson = builder.create();
 	}
 
