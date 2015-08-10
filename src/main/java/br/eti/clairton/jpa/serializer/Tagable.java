@@ -3,6 +3,7 @@ package br.eti.clairton.jpa.serializer;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public abstract class Tagable<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -28,10 +29,19 @@ public abstract class Tagable<T> implements Serializable {
 	 * @return String with a tag name
 	 */
 	public String getRootTagCollection(final Collection<T> collection) {
-		final T src = getFirst(collection);
+		final T src;
+		try{
+			src = getFirst(collection);
+		}catch(final NoSuchElementException e){
+			return "";
+		}
 		final String tag = getRootTag(src);
-		final String collectionTag = String.format("%s%s", tag, "s");
+		final String collectionTag = pluralize(tag);
 		return collectionTag;
+	}
+	
+	protected String pluralize(final String tag){
+		return String.format("%s%s", tag, "s");
 	}
 
 	protected T getFirst(final Collection<T> collection) {
