@@ -34,7 +34,7 @@ public abstract class Tagable<T> implements Serializable {
 		return collectionTag;
 	}
 	
-	protected String pluralize(final String tag){
+	public String pluralize(final String tag){
 		return String.format("%s%s", tag, "s");
 	}
 
