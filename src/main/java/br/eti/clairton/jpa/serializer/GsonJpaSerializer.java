@@ -241,7 +241,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 				throw new NoSuchElementException();
 			}
 		}
-		throw new NoSuchElementException();
+		return null;
 	}
 
 	protected Class<?> getRawType(final Field field) {
