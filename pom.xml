@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>jpa-serializer</artifactId>
-	<version>0.3.1</version>
+	<version>1.0.0</version>
 	<url>https://github.com/clairton/jpa-serializer</url>
 	<scm>
 		<connection>scm:git:git@github.com:clairton/jpa-serializer.git</connection>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.3.2</version>
+			<version>2.3.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
