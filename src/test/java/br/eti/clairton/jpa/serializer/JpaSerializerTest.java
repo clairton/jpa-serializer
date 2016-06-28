@@ -27,6 +27,8 @@ public class JpaSerializerTest extends JpaSerializer<Aplicacao> {
 			ignore("ignoreAlways");
 			ignore("ignoreSerialize", Operation.SERIALIZE);
 			ignore("ignoreDeserialize", Operation.DESERIALIZE);
+			
+			idPolymorphic("idPolymorphic");
 		}
 	};
 
@@ -67,6 +69,17 @@ public class JpaSerializerTest extends JpaSerializer<Aplicacao> {
 		assertFalse(serializer.isId("idDeserialize", Operation.SERIALIZE));
 		assertTrue(serializer.isId("idDeserialize", Operation.DESERIALIZE));
 		assertFalse(serializer.isId("idDeserialize"));
+	}
+	
+	@Test
+	public void testIdPolymorphic() {
+		assertTrue(serializer.isId("idPolymorphic", Operation.SERIALIZE));
+		assertTrue(serializer.isId("idPolymorphic", Operation.DESERIALIZE));
+		assertTrue(serializer.isId("idPolymorphic"));
+		assertTrue(serializer.isIdPolymorphic("idPolymorphic", Operation.DESERIALIZE));
+		assertTrue(serializer.isIdPolymorphic("idPolymorphic", Operation.SERIALIZE));
+		assertTrue(serializer.isIdPolymorphic("idPolymorphic"));
+		assertFalse(serializer.isIdPolymorphic("idNotExist"));
 	}
 	
 	@Test

@@ -120,4 +120,22 @@ public class GsonJpaSerializerTest {
 		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
 		assertEquals(asList(100.0, 200.0), resultado.get("aplicacoes"));
 	}
+
+	@Test
+	public void testManyToManyPolymorphic() {
+		final GsonBuilder builder = new GsonBuilder();
+		final GsonJpaSerializer<ModelManyToMany> serializer = new GsonJpaSerializer<ModelManyToMany>(null) {
+			private static final long serialVersionUID = 1L;
+			{
+				idPolymorphic("aplicacoes", Operation.SERIALIZE);
+			}
+		};
+		builder.registerTypeAdapter(ModelManyToMany.class, serializer);
+		gson = builder.create();
+		
+		final ModelManyToMany model = new ModelManyToMany();
+		final String json = gson.toJson(model, ModelManyToMany.class);
+		final Map<?, ?> resultado = gson.fromJson(json, HashMap.class);
+		assertEquals("[{id=100.0, type=aplicacao}, {id=200.0, type=aplicacao}]", resultado.get("aplicacoes").toString());
+	}
 }

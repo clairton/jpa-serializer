@@ -43,8 +43,16 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 		config(field, Mode.ID);
 	}
 
+	protected void idPolymorphic(final String field) {
+		config(field, Mode.ID_POLYMORPHIC);
+	}
+
 	protected void id(final String field, final Operation operation) {
 		config(field, Mode.ID, operation);
+	}
+
+	protected void idPolymorphic(final String field, final Operation operation) {
+		config(field, Mode.ID_POLYMORPHIC, operation);
 	}
 
 	protected void reload(final String field) {
@@ -141,6 +149,14 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 
 	protected Boolean isId(final String key) {
 		return nodes().isId(key);
+	}
+
+	protected Boolean isIdPolymorphic(final String key) {
+		return nodes().isIdPolymorphic(key);
+	}
+
+	protected Boolean isIdPolymorphic(final String key, final Operation operation) {
+		return nodes().isIdPolymorphic(key, operation);
 	}
 
 	protected Boolean isReload(final String key, final Operation operation) {

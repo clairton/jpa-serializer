@@ -15,6 +15,7 @@ public class NodesTest {
 			put("record", Mode.RECORD);
 			put("reload", Mode.RELOAD);
 			put("reloadOnlySerialize", Mode.RELOAD, Operation.SERIALIZE);
+			put("idPolymorphic", Mode.ID_POLYMORPHIC);
 			put("id", Mode.ID);
 		}
 	};
@@ -62,6 +63,12 @@ public class NodesTest {
 	@Test
 	public void testIsId() {
 		assertTrue(node.isId("id"));
+	}
+	
+	@Test
+	public void testIsIdPolymorphic() {
+		assertTrue(node.isId("idPolymorphic"));
+		assertTrue(node.isIdPolymorphic("idPolymorphic"));
 	}
 
 	@Test

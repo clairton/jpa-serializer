@@ -1,9 +1,10 @@
 package br.eti.clairton.jpa.serializer;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-public class Nodes extends HashMap<String, Node>implements Map<String, Node> {
+public class Nodes extends HashMap<String, Node> implements Map<String, Node>, Iterable<Node> {
 	private static final long serialVersionUID = 1L;
 	private final Node defaultNode = new Node(Mode.ID);
 
@@ -39,7 +40,15 @@ public class Nodes extends HashMap<String, Node>implements Map<String, Node> {
 	}
 
 	public Boolean isId(final Object key) {
-		return is(key, Mode.ID);
+		return is(key, Mode.ID) || isIdPolymorphic(key);
+	}
+
+	public Boolean isIdPolymorphic(final Object key) {
+		return is(key, Mode.ID_POLYMORPHIC);
+	}
+	
+	public Boolean isIdPolymorphic(final Object key, final Operation operation) {
+		return is(key, Mode.ID_POLYMORPHIC, operation);
 	}
 
 	public Boolean isIgnore(final Object key) {
@@ -68,10 +77,15 @@ public class Nodes extends HashMap<String, Node>implements Map<String, Node> {
 	}
 
 	public Boolean isId(final Object key, final Operation operation) {
-		return is(key, Mode.ID, operation);
+		return is(key, Mode.ID, operation) || isIdPolymorphic(key, operation);
 	}
 
 	public Boolean isIgnore(final Object key, final Operation operation) {
 		return is(key, Mode.IGNORE, operation);
+	}
+
+	@Override
+	public Iterator<Node> iterator() {
+		return this.values().iterator();
 	}
 }

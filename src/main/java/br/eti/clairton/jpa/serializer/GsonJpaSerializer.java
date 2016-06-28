@@ -1,5 +1,9 @@
 package br.eti.clairton.jpa.serializer;
 
+import static br.eti.clairton.jpa.serializer.Operation.DESERIALIZE;
+import static br.eti.clairton.jpa.serializer.Operation.SERIALIZE;
+import static java.lang.Character.toLowerCase;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -94,7 +98,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			final List<Field> fields = getFields(klazz);
 			for (final Field field : fields) {
 				final String tag = field.getName();
-				if (nodes().isIgnore(tag, Operation.SERIALIZE)) {
+				if (nodes().isIgnore(tag, SERIALIZE)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
@@ -146,15 +150,25 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
 		logger.debug("Serializando {}#{}", klazz, tag);
-		if (isToOne(field, Operation.SERIALIZE)) {
+		if (isToOne(field, SERIALIZE)) {
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
 			final Collection<?> models = Collection.class.cast(v);
-			for (final Object model : models) {
-				ids.add(getId(model));
+			System.out.println(">>>>>" + this);
+			if(isIdPolymorphic(field.getName(), SERIALIZE)){
+				for (final Object model : models) {
+					final Map<String, Object> object = new HashMap<String, Object>();
+					object.put(getPolymorphicTagName(model), getPolymorphicTagValue(model));
+					object.put("id", getId(model));
+					ids.add(object);
+				}				
+			} else {				
+				for (final Object model : models) {
+					ids.add(getId(model));
+				}
 			}
 			value = ids;
-		} else if (isToMany(field, Operation.SERIALIZE)) {
+		} else if (isToMany(field, SERIALIZE)) {
 			final Object v = getValue(src, field);
 			if (v == null) {
 				value = null;
@@ -178,9 +192,9 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final Object value;
 		if (field == null) {
 			value = null;
-		} else if (isToOne(field, Operation.DESERIALIZE)) {
+		} else if (isToOne(field, DESERIALIZE)) {
 			value = toMany(context, field, element);
-		} else if (isToMany(field, Operation.DESERIALIZE)) {
+		} else if (isToMany(field, DESERIALIZE)) {
 			value = toOne(context, field, element);
 		} else {
 			if (JsonArray.class.isInstance(element)) {
@@ -196,7 +210,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final W value;
 		if (JsonNull.class.isInstance(element)) {
 			value = null;
-		} else if (nodes().isReload(field, Operation.DESERIALIZE)) {
+		} else if (nodes().isReload(field, DESERIALIZE)) {
 			@SuppressWarnings("unchecked")
 			final W w = (W) entityManager.find(type, unwrapId(type, element));
 			value = w;
@@ -254,8 +268,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		}
 	}
 
-	protected <W> Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array,
-			final Object target, final Field field) {
+	protected <W> Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Object target, final Field field) {
 		final Collection<W> collection = getInstance(field.getType());
 		final Class<?> type = getRawType(field);
 		final String mappedBy = getMappedBy(field);
@@ -304,14 +317,19 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		}
 	}
 
-	protected <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field,
-			final JsonElement element) {
+	protected <W> Collection<W> toMany(final JsonDeserializationContext context, final Field field, final JsonElement element) {
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
 		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();
 		final Class<?> elementType = (Class<?>) arr[0];
 		final Collection<W> collection = getInstance(field.getType());
 		final JsonArray array = element.getAsJsonArray();
+		final Metamodel metamodel = entityManager.getMetamodel();
+		final EntityType<?> entity = metamodel.entity(elementType);
+		final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
+		final Class<?> t = idType.getJavaType();
+		final Attribute<?, ?> attribute = entity.getId(t);
+		final String fieldIdName = attribute.getName();
 		for (final JsonElement jsonElement : array) {
 			final W object;
 			try {
@@ -322,12 +340,6 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 				throw new RuntimeException(e);
 			}
 			final SetterHandler handler = mirror.on(object).set();
-			final Metamodel metamodel = entityManager.getMetamodel();
-			final EntityType<?> entity = metamodel.entity(elementType);
-			final javax.persistence.metamodel.Type<?> idType = entity.getIdType();
-			final Class<?> t = idType.getJavaType();
-			final Attribute<?, ?> attribute = entity.getId(t);
-			final String fieldIdName = attribute.getName();
 			final FieldSetter fieldSetter = handler.field(fieldIdName);
 			fieldSetter.withValue(jsonElement.getAsLong());
 			collection.add(object);
@@ -344,5 +356,14 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			z = (Z) new HashSet<W>();
 		}
 		return z;
+	}
+	
+	protected String getPolymorphicTagName(final Object model){
+		return "type";
+	}
+	
+	protected String getPolymorphicTagValue(final Object model){
+		final String name = model.getClass().getSimpleName();
+		return toLowerCase(name.charAt(0)) + name.substring(1);
 	}
 }
