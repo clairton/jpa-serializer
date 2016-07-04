@@ -154,7 +154,6 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
 			final Collection<?> models = Collection.class.cast(v);
-			System.out.println(">>>>>" + this);
 			if(isIdPolymorphic(field.getName(), SERIALIZE)){
 				for (final Object model : models) {
 					final Map<String, Object> object = new HashMap<String, Object>();
