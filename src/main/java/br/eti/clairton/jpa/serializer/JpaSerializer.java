@@ -127,57 +127,117 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 		return nodes;
 	}
 
+	@Deprecated
 	protected Boolean isToMany(final Field field, final Operation operation) {
-		return (field.isAnnotationPresent(ManyToOne.class) ||
-					field.isAnnotationPresent(OneToOne.class)) &&
-						!isRecord(field.getName(), operation) && 
-							!isReload(field.getName(), operation);
+		return isToMany(null, field, operation);
 	}
 
+	@Deprecated
 	protected Boolean isToOne(final Field field, final Operation operation) {
+		return isToOne(null, field, operation);
+	}
+
+	@Deprecated
+	protected Boolean isIgnore(final String key, final Operation operation) {
+		return isIgnore(null, key, operation);
+	}
+
+	@Deprecated
+	protected Boolean isIgnore(final String key) {
+		return isIgnore(null, key);
+	}
+
+	@Deprecated
+	protected Boolean isId(final String key, final Operation operation) {
+		return isId(null, key, operation);
+	}
+
+	@Deprecated
+	protected Boolean isId(final String key) {
+		return isId(null, key);
+	}
+
+	@Deprecated
+	protected Boolean isIdPolymorphic(final String key) {
+		return isIdPolymorphic(null, key);
+	}
+
+	@Deprecated
+	protected Boolean isIdPolymorphic(final String key, final Operation operation) {
+		return isIdPolymorphic(null, key, operation);
+	}
+
+	@Deprecated
+	protected Boolean isReload(final String key, final Operation operation) {
+		return isReload(null, key, operation);
+	}
+
+	@Deprecated
+	protected Boolean isReload(final String key) {
+		return isReload(null, key);
+	}
+
+	@Deprecated
+	protected Boolean isRecord(final String key, final Operation operation) {
+		return isRecord(null, key, operation);
+	}
+
+	@Deprecated
+	protected Boolean isRecord(final String key) {
+		return isRecord(null, key);
+	}
+
+	protected Boolean isToMany(final Object source, final Field field, final Operation operation) {
+		return (field.isAnnotationPresent(ManyToOne.class) ||
+				field.isAnnotationPresent(OneToOne.class)) &&
+					!isRecord(source, field.getName(), operation) && 
+						!isReload(source, field.getName(), operation);
+	}
+	
+	protected Boolean isToOne(final Object source, final Field field, final Operation operation) {
 		return (field.isAnnotationPresent(OneToMany.class) || 
 					field.isAnnotationPresent(ManyToMany.class)) &&
-						!isRecord(field.getName(), operation) && 
-							!isReload(field.getName(), operation);
+						!isRecord(source, field.getName(), operation) && 
+							!isReload(source, field.getName(), operation);
 	}
 
-	protected Boolean isIgnore(final String key, final Operation operation) {
+	protected Boolean isIgnore(final Object source, final String key, final Operation operation) {
 		return nodes().isIgnore(key, operation);
 	}
 
-	protected Boolean isIgnore(final String key) {
+	protected Boolean isIgnore(final Object source, final String key) {
 		return nodes().isIgnore(key);
 	}
 
-	protected Boolean isId(final String key, final Operation operation) {
+	protected Boolean isId(final Object source, final String key, final Operation operation) {
 		return nodes().isId(key, operation);
 	}
 
-	protected Boolean isId(final String key) {
+	protected Boolean isId(final Object source, final String key) {
 		return nodes().isId(key);
 	}
 
-	protected Boolean isIdPolymorphic(final String key) {
+	protected Boolean isIdPolymorphic(final Object source, final String key) {
 		return nodes().isIdPolymorphic(key);
 	}
 
-	protected Boolean isIdPolymorphic(final String key, final Operation operation) {
+	protected Boolean isIdPolymorphic(final Object source, final String key, final Operation operation) {
 		return nodes().isIdPolymorphic(key, operation);
 	}
 
-	protected Boolean isReload(final String key, final Operation operation) {
+	protected Boolean isReload(final Object source, final String key, final Operation operation) {
 		return nodes().isReload(key, operation);
 	}
 
-	protected Boolean isReload(final String key) {
+	protected Boolean isReload(final Object source, final String key) {
 		return nodes().isReload(key);
 	}
 
-	protected Boolean isRecord(final String key, final Operation operation) {
+	protected Boolean isRecord(final Object source, final String key, final Operation operation) {
 		return nodes().isRecord(key, operation);
 	}
 
-	protected Boolean isRecord(final String key) {
+	protected Boolean isRecord(final Object source, final String key) {
 		return nodes().isRecord(key);
 	}
 }

@@ -97,8 +97,8 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			final Class<T> klazz = getClass(type);
 			final List<Field> fields = getFields(klazz);
 			for (final Field field : fields) {
-				final String tag = field.getName();
-				if (nodes().isIgnore(tag, SERIALIZE)) {
+				final String tag = getTag(field);
+				if (isIgnore(src, tag, SERIALIZE)) {
 					logger.debug("Ignorando field {}", tag);
 					continue;
 				}
@@ -145,16 +145,20 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		return mirror.on(klazz).reflectAll().fields();
 	}
 
+	protected String getTag(final Field field) {
+		return field.getName();
+	}
+
 	protected Object getValue(final JsonSerializationContext context, final Object src, final Field field) {
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
 		logger.debug("Serializando {}#{}", klazz, tag);
-		if (isToOne(field, SERIALIZE)) {
+		if (isToOne(src, field, SERIALIZE)) {
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
 			final Collection<?> models = Collection.class.cast(v);
-			if(isIdPolymorphic(field.getName(), SERIALIZE)){
+			if(isIdPolymorphic(src, field.getName(), SERIALIZE)){
 				for (final Object model : models) {
 					final Map<String, Object> object = new HashMap<String, Object>();
 					object.put(getPolymorphicTagName(model), getPolymorphicTagValue(model));
@@ -167,7 +171,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 				}
 			}
 			value = ids;
-		} else if (isToMany(field, SERIALIZE)) {
+		} else if (isToMany(src, field, SERIALIZE)) {
 			final Object v = getValue(src, field);
 			if (v == null) {
 				value = null;
@@ -191,9 +195,9 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final Object value;
 		if (field == null) {
 			value = null;
-		} else if (isToOne(field, DESERIALIZE)) {
+		} else if (isToOne(target, field, DESERIALIZE)) {
 			value = toMany(context, field, element);
-		} else if (isToMany(field, DESERIALIZE)) {
+		} else if (isToMany(target, field, DESERIALIZE)) {
 			value = toOne(context, field, element);
 		} else {
 			if (JsonArray.class.isInstance(element)) {
