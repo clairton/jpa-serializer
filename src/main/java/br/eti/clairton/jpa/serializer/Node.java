@@ -1,5 +1,8 @@
 package br.eti.clairton.jpa.serializer;
 
+import static br.eti.clairton.jpa.serializer.Operation.values;
+import static java.util.Arrays.asList;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,11 +17,11 @@ public class Node {
 	}
 
 	public Node(final Mode mode) {
-		this(mode, Arrays.asList(Operation.values()));
+		this(mode, Arrays.asList(values()));
 	}
 
 	public Node(final Mode mode, final Operation operation) {
-		this(mode, Arrays.asList(operation));
+		this(mode, asList(operation));
 	}
 
 	public List<Operation> getOperations() {

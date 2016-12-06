@@ -1,5 +1,12 @@
 package br.eti.clairton.jpa.serializer;
 
+import static br.eti.clairton.jpa.serializer.Mode.ID;
+import static br.eti.clairton.jpa.serializer.Mode.ID_POLYMORPHIC;
+import static br.eti.clairton.jpa.serializer.Mode.IGNORE;
+import static br.eti.clairton.jpa.serializer.Mode.RECORD;
+import static br.eti.clairton.jpa.serializer.Mode.RELOAD;
+import static org.apache.logging.log4j.LogManager.getLogger;
+
 import java.lang.reflect.Field;
 
 import javax.persistence.ManyToMany;
@@ -7,7 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
@@ -18,57 +24,57 @@ import net.vidageek.mirror.dsl.Mirror;
 
 public abstract class JpaSerializer<T> extends Tagable<T> {
 	private static final long serialVersionUID = 1L;
-	protected final Mirror mirror = new Mirror();
-	private final Logger logger = LogManager.getLogger(JpaSerializer.class);
+	private final Logger logger = getLogger(JpaSerializer.class);
 	private final Nodes nodes = new Nodes() {
 		private static final long serialVersionUID = 1L;
 
 		{
-			put("serialVersionUID", Mode.IGNORE);
-			put("MIRROR", Mode.IGNORE);
-			put("logger", Mode.IGNORE);
-			put("STYLE", Mode.IGNORE);
+			put("serialVersionUID", IGNORE);
+			put("MIRROR", IGNORE);
+			put("logger", IGNORE);
+			put("STYLE", IGNORE);
 		}
 	};
+	protected final Mirror mirror = new Mirror();
 
 	protected void record(final String field) {
-		config(field, Mode.RECORD);
+		config(field, RECORD);
 	}
 
 	protected void record(final String field, final Operation operation) {
-		config(field, Mode.RECORD, operation);
+		config(field, RECORD, operation);
 	}
 
 	protected void id(final String field) {
-		config(field, Mode.ID);
+		config(field, ID);
 	}
 
 	protected void idPolymorphic(final String field) {
-		config(field, Mode.ID_POLYMORPHIC);
+		config(field, ID_POLYMORPHIC);
 	}
 
 	protected void id(final String field, final Operation operation) {
-		config(field, Mode.ID, operation);
+		config(field, ID, operation);
 	}
 
 	protected void idPolymorphic(final String field, final Operation operation) {
-		config(field, Mode.ID_POLYMORPHIC, operation);
+		config(field, ID_POLYMORPHIC, operation);
 	}
 
 	protected void reload(final String field) {
-		config(field, Mode.RELOAD);
+		config(field, RELOAD);
 	}
 
 	protected void reload(final String field, final Operation operation) {
-		config(field, Mode.RELOAD, operation);
+		config(field, RELOAD, operation);
 	}
 
 	protected void ignore(final String field) {
-		config(field, Mode.IGNORE);
+		config(field, IGNORE);
 	}
 
 	protected void ignore(final String field, final Operation operation) {
-		config(field, Mode.IGNORE, operation);
+		config(field, IGNORE, operation);
 	}
 
 	protected void config(final String field, final Mode mode) {

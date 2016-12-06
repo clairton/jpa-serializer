@@ -1,12 +1,20 @@
 package br.eti.clairton.jpa.serializer;
 
+import static br.eti.clairton.jpa.serializer.Mode.ID;
+import static br.eti.clairton.jpa.serializer.Mode.ID_POLYMORPHIC;
+import static br.eti.clairton.jpa.serializer.Mode.IGNORE;
+import static br.eti.clairton.jpa.serializer.Mode.RECORD;
+import static br.eti.clairton.jpa.serializer.Mode.RELOAD;
+import static br.eti.clairton.jpa.serializer.Operation.DESERIALIZE;
+import static br.eti.clairton.jpa.serializer.Operation.SERIALIZE;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class Nodes extends HashMap<String, Node> implements Map<String, Node>, Iterable<Node> {
 	private static final long serialVersionUID = 1L;
-	private final Node defaultNode = new Node(Mode.ID);
+	private final Node defaultNode = new Node(ID);
 
 	@Override
 	public Node get(final Object key) {
@@ -32,34 +40,34 @@ public class Nodes extends HashMap<String, Node> implements Map<String, Node>, I
 	}
 
 	public Boolean isReload(final Object key) {
-		return is(key, Mode.RELOAD);
+		return is(key, RELOAD);
 	}
 
 	public Boolean isRecord(final Object key) {
-		return is(key, Mode.RECORD);
+		return is(key, RECORD);
 	}
 
 	public Boolean isId(final Object key) {
-		return is(key, Mode.ID) || isIdPolymorphic(key);
+		return is(key, ID) || isIdPolymorphic(key);
 	}
 
 	public Boolean isIdPolymorphic(final Object key) {
-		return is(key, Mode.ID_POLYMORPHIC);
+		return is(key, ID_POLYMORPHIC);
 	}
 	
 	public Boolean isIdPolymorphic(final Object key, final Operation operation) {
-		return is(key, Mode.ID_POLYMORPHIC, operation);
+		return is(key, ID_POLYMORPHIC, operation);
 	}
 
 	public Boolean isIgnore(final Object key) {
-		return is(key, Mode.IGNORE);
+		return is(key, IGNORE);
 	}
 
 	public Boolean is(final Object key, final Mode mode) {
 		final Node node = get(key);
 		return node.getMode().equals(mode) && 
-					node.getOperations().contains(Operation.DESERIALIZE) &&
-						node.getOperations().contains(Operation.SERIALIZE);
+					node.getOperations().contains(DESERIALIZE) &&
+						node.getOperations().contains(SERIALIZE);
 	}
 
 	public Boolean is(final Object key, final Mode mode, final Operation operation) {
@@ -69,19 +77,19 @@ public class Nodes extends HashMap<String, Node> implements Map<String, Node>, I
 	}
 
 	public Boolean isReload(final Object key, final Operation operation) {
-		return is(key, Mode.RELOAD, operation);
+		return is(key, RELOAD, operation);
 	}
 
 	public Boolean isRecord(final Object key, final Operation operation) {
-		return is(key, Mode.RECORD, operation);
+		return is(key, RECORD, operation);
 	}
 
 	public Boolean isId(final Object key, final Operation operation) {
-		return is(key, Mode.ID, operation) || isIdPolymorphic(key, operation);
+		return is(key, ID, operation) || isIdPolymorphic(key, operation);
 	}
 
 	public Boolean isIgnore(final Object key, final Operation operation) {
-		return is(key, Mode.IGNORE, operation);
+		return is(key, IGNORE, operation);
 	}
 
 	@Override

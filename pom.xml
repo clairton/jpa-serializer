@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>jpa-serializer</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2</version>
 	<url>https://github.com/clairton/jpa-serializer</url>
 	<scm>
 		<connection>scm:git:git@github.com:clairton/jpa-serializer.git</connection>

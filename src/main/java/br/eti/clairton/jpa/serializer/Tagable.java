@@ -1,5 +1,7 @@
 package br.eti.clairton.jpa.serializer;
 
+import static java.lang.String.format;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,10 +36,20 @@ public abstract class Tagable<T> implements Serializable {
 		return collectionTag;
 	}
 	
+	/**
+	 * Plurarize tag
+	 * @param tag to be plurarized
+	 * @return plurarized string
+	 */
 	public String pluralize(final String tag){
-		return String.format("%s%s", tag, "s");
+		return format("%s%s", tag, "s");
 	}
 
+	/**
+	 * Return de first element of collection
+	 * @param collection
+	 * @return
+	 */
 	protected T getFirst(final Collection<T> collection) {
 		final Iterator<T> iterator = collection.iterator();
 		final T src = iterator.next();
