@@ -42,7 +42,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.vidageek.mirror.dsl.Mirror;
 import net.vidageek.mirror.invoke.dsl.InvocationHandler;
 import net.vidageek.mirror.set.dsl.FieldSetter;
 import net.vidageek.mirror.set.dsl.SetterHandler;
@@ -72,16 +71,25 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 
 		private static final long serialVersionUID = 1L;
 	};
+	
+	/**
+	 * Construtor Padrão.
+	 *
+	 * @param entityManager
+	 *            instancia de {@link EntityManager}
+	 * @param nodes
+	 *            instancia de {@link Nodes}
+	 */
+	public GsonJpaSerializer(final Nodes nodes, final EntityManager entityManager) {
+		super(nodes);
+		this.entityManager = entityManager;
+	}
 
 	/**
 	 * Construtor Padrão.
 	 *
 	 * @param entityManager
 	 *            instancia de {@link EntityManager}
-	 * @param mirror
-	 *            instancia de {@link Mirror}
-	 * @param logger
-	 *            instancia de {@link Logger}
 	 */
 	public GsonJpaSerializer(final @NotNull EntityManager entityManager) {
 		this.entityManager = entityManager;

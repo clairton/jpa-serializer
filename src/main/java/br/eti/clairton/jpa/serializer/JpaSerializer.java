@@ -25,17 +25,26 @@ import net.vidageek.mirror.dsl.Mirror;
 public abstract class JpaSerializer<T> extends Tagable<T> {
 	private static final long serialVersionUID = 1L;
 	private final Logger logger = getLogger(JpaSerializer.class);
-	private final Nodes nodes = new Nodes() {
-		private static final long serialVersionUID = 1L;
-
-		{
-			put("serialVersionUID", IGNORE);
-			put("MIRROR", IGNORE);
-			put("logger", IGNORE);
-			put("STYLE", IGNORE);
-		}
-	};
+	private final Nodes nodes;
 	protected final Mirror mirror = new Mirror();
+
+	public JpaSerializer() {
+		this(new Nodes() {
+			private static final long serialVersionUID = 1L;
+
+			{
+				put("serialVersionUID", IGNORE);
+				put("MIRROR", IGNORE);
+				put("logger", IGNORE);
+				put("STYLE", IGNORE);
+			}
+		});
+	}
+
+	public JpaSerializer(Nodes nodes) {
+		super();
+		this.nodes = nodes;
+	}
 
 	protected void record(final String field) {
 		config(field, RECORD);
@@ -188,17 +197,13 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	}
 
 	protected Boolean isToMany(final Object source, final Field field, final Operation operation) {
-		return (field.isAnnotationPresent(ManyToOne.class) ||
-				field.isAnnotationPresent(OneToOne.class)) &&
-					!isRecord(source, field.getName(), operation) && 
-						!isReload(source, field.getName(), operation);
+		return (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class))
+				&& !isRecord(source, field.getName(), operation) && !isReload(source, field.getName(), operation);
 	}
-	
+
 	protected Boolean isToOne(final Object source, final Field field, final Operation operation) {
-		return (field.isAnnotationPresent(OneToMany.class) || 
-					field.isAnnotationPresent(ManyToMany.class)) &&
-						!isRecord(source, field.getName(), operation) && 
-							!isReload(source, field.getName(), operation);
+		return (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class))
+				&& !isRecord(source, field.getName(), operation) && !isReload(source, field.getName(), operation);
 	}
 
 	protected Boolean isIgnore(final Object source, final String key, final Operation operation) {
@@ -240,7 +245,7 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	protected Boolean isRecord(final Object source, final String key) {
 		return nodes(source).isRecord(key);
 	}
-	
+
 	public Nodes nodes(final Object source) {
 		return nodes;
 	}
