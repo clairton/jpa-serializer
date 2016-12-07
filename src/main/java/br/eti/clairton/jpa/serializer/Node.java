@@ -3,10 +3,12 @@ package br.eti.clairton.jpa.serializer;
 import static br.eti.clairton.jpa.serializer.Operation.values;
 import static java.util.Arrays.asList;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class Node {
+public class Node implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private final Mode mode;
 	private final List<Operation> operations;
 
