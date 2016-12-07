@@ -13,6 +13,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Nodes extends HashMap<String, Node> implements Map<String, Node>, Iterable<Node> {
+	{
+		put("serialVersionUID", IGNORE);
+		put("MIRROR", IGNORE);
+		put("logger", IGNORE);
+		put("STYLE", IGNORE);
+	}
 	private static final long serialVersionUID = 1L;
 	private final Node defaultNode = new Node(ID);
 

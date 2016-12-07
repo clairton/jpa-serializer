@@ -29,16 +29,7 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	protected final Mirror mirror = new Mirror();
 
 	public JpaSerializer() {
-		this(new Nodes() {
-			private static final long serialVersionUID = 1L;
-
-			{
-				put("serialVersionUID", IGNORE);
-				put("MIRROR", IGNORE);
-				put("logger", IGNORE);
-				put("STYLE", IGNORE);
-			}
-		});
+		this(new Nodes());
 	}
 
 	public JpaSerializer(Nodes nodes) {
