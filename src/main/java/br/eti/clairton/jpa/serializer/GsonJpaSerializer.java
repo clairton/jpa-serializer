@@ -213,7 +213,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final W value;
 		if (JsonNull.class.isInstance(element)) {
 			value = null;
-		} else if (nodes().isReload(field, DESERIALIZE)) {
+		} else if (isReload(null, field, DESERIALIZE)) {
 			@SuppressWarnings("unchecked")
 			final W w = (W) entityManager.find(type, unwrapId(type, element));
 			value = w;

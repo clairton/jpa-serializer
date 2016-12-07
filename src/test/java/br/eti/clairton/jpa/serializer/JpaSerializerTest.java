@@ -34,64 +34,64 @@ public class JpaSerializerTest extends JpaSerializer<Aplicacao> {
 
 	@Test
 	public void testRecord() {
-		assertTrue(serializer.isRecord("recordAlways"));
+		assertTrue(serializer.isRecord(null, "recordAlways"));
 
-		assertTrue(serializer.isRecord("recordSerialize", Operation.SERIALIZE));
-		assertFalse(serializer.isRecord("recordSerialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isRecord("recordSerialize"));
+		assertTrue(serializer.isRecord(null, "recordSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isRecord(null, "recordSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isRecord(null, "recordSerialize"));
 
-		assertFalse(serializer.isRecord("recordDeserialize", Operation.SERIALIZE));
-		assertTrue(serializer.isRecord("recordDeserialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isRecord("recordDeserialize"));
+		assertFalse(serializer.isRecord(null, "recordDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isRecord(null, "recordDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isRecord(null, "recordDeserialize"));
 	}
 
 	@Test
 	public void testReload() {
-		assertTrue(serializer.isReload("reloadAlways"));
+		assertTrue(serializer.isReload(null, "reloadAlways"));
 
-		assertTrue(serializer.isReload("reloadSerialize", Operation.SERIALIZE));
-		assertFalse(serializer.isReload("reloadSerialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isReload("reloadSerialize"));
+		assertTrue(serializer.isReload(null, "reloadSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isReload(null, "reloadSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isReload(null, "reloadSerialize"));
 
-		assertFalse(serializer.isReload("reloadDeserialize", Operation.SERIALIZE));
-		assertTrue(serializer.isReload("reloadDeserialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isReload("reloadDeserialize"));
+		assertFalse(serializer.isReload(null, "reloadDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isReload(null, "reloadDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isReload(null, "reloadDeserialize"));
 	}
 
 	@Test
 	public void testId() {
-		assertTrue(serializer.isId("idAlways"));
+		assertTrue(serializer.isId(null, "idAlways"));
 
-		assertTrue(serializer.isId("idSerialize", Operation.SERIALIZE));
-		assertFalse(serializer.isId("idSerialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isId("idSerialize"));
+		assertTrue(serializer.isId(null, "idSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isId(null, "idSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isId(null, "idSerialize"));
 
-		assertFalse(serializer.isId("idDeserialize", Operation.SERIALIZE));
-		assertTrue(serializer.isId("idDeserialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isId("idDeserialize"));
+		assertFalse(serializer.isId(null, "idDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isId(null, "idDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isId(null, "idDeserialize"));
 	}
 	
 	@Test
 	public void testIdPolymorphic() {
-		assertTrue(serializer.isId("idPolymorphic", Operation.SERIALIZE));
-		assertTrue(serializer.isId("idPolymorphic", Operation.DESERIALIZE));
-		assertTrue(serializer.isId("idPolymorphic"));
-		assertTrue(serializer.isIdPolymorphic("idPolymorphic", Operation.DESERIALIZE));
-		assertTrue(serializer.isIdPolymorphic("idPolymorphic", Operation.SERIALIZE));
-		assertTrue(serializer.isIdPolymorphic("idPolymorphic"));
-		assertFalse(serializer.isIdPolymorphic("idNotExist"));
+		assertTrue(serializer.isId(null, "idPolymorphic", Operation.SERIALIZE));
+		assertTrue(serializer.isId(null, "idPolymorphic", Operation.DESERIALIZE));
+		assertTrue(serializer.isId(null, "idPolymorphic"));
+		assertTrue(serializer.isIdPolymorphic(null, "idPolymorphic", Operation.DESERIALIZE));
+		assertTrue(serializer.isIdPolymorphic(null, "idPolymorphic", Operation.SERIALIZE));
+		assertTrue(serializer.isIdPolymorphic(null, "idPolymorphic"));
+		assertFalse(serializer.isIdPolymorphic(null, "idNotExist"));
 	}
 	
 	@Test
 	public void testIgnore() {
-		assertTrue(serializer.isIgnore("ignoreAlways"));
+		assertTrue(serializer.isIgnore(null, "ignoreAlways"));
 		
-		assertTrue(serializer.isIgnore("ignoreSerialize", Operation.SERIALIZE));
-		assertFalse(serializer.isIgnore("ignoreSerialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isIgnore("ignoreSerialize"));
+		assertTrue(serializer.isIgnore(null, "ignoreSerialize", Operation.SERIALIZE));
+		assertFalse(serializer.isIgnore(null, "ignoreSerialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isIgnore(null, "ignoreSerialize"));
 		
-		assertFalse(serializer.isIgnore("ignoreDeserialize", Operation.SERIALIZE));
-		assertTrue(serializer.isIgnore("ignoreDeserialize", Operation.DESERIALIZE));
-		assertFalse(serializer.isIgnore("ignoreDeserialize"));
+		assertFalse(serializer.isIgnore(null, "ignoreDeserialize", Operation.SERIALIZE));
+		assertTrue(serializer.isIgnore(null, "ignoreDeserialize", Operation.DESERIALIZE));
+		assertFalse(serializer.isIgnore(null, "ignoreDeserialize"));
 	}
 }

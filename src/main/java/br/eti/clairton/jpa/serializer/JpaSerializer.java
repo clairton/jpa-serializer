@@ -202,42 +202,46 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	}
 
 	protected Boolean isIgnore(final Object source, final String key, final Operation operation) {
-		return nodes().isIgnore(key, operation);
+		return nodes(source).isIgnore(key, operation);
 	}
 
 	protected Boolean isIgnore(final Object source, final String key) {
-		return nodes().isIgnore(key);
+		return nodes(source).isIgnore(key);
 	}
 
 	protected Boolean isId(final Object source, final String key, final Operation operation) {
-		return nodes().isId(key, operation);
+		return nodes(source).isId(key, operation);
 	}
 
 	protected Boolean isId(final Object source, final String key) {
-		return nodes().isId(key);
+		return nodes(source).isId(key);
 	}
 
 	protected Boolean isIdPolymorphic(final Object source, final String key) {
-		return nodes().isIdPolymorphic(key);
+		return nodes(source).isIdPolymorphic(key);
 	}
 
 	protected Boolean isIdPolymorphic(final Object source, final String key, final Operation operation) {
-		return nodes().isIdPolymorphic(key, operation);
+		return nodes(source).isIdPolymorphic(key, operation);
 	}
 
 	protected Boolean isReload(final Object source, final String key, final Operation operation) {
-		return nodes().isReload(key, operation);
+		return nodes(source).isReload(key, operation);
 	}
 
 	protected Boolean isReload(final Object source, final String key) {
-		return nodes().isReload(key);
+		return nodes(source).isReload(key);
 	}
 
 	protected Boolean isRecord(final Object source, final String key, final Operation operation) {
-		return nodes().isRecord(key, operation);
+		return nodes(source).isRecord(key, operation);
 	}
 
 	protected Boolean isRecord(final Object source, final String key) {
-		return nodes().isRecord(key);
+		return nodes(source).isRecord(key);
+	}
+	
+	public Nodes nodes(final Object source) {
+		return nodes;
 	}
 }

@@ -23,8 +23,8 @@ public class JpaDeserializerAutoRelationTest {
 			private static final long serialVersionUID = 1L;
 
 			{
-				nodes().put("aplicacao", Mode.RECORD, Operation.DESERIALIZE);
-				nodes().put("recursos", Mode.RECORD, Operation.DESERIALIZE);
+				nodes(null).put("aplicacao", Mode.RECORD, Operation.DESERIALIZE);
+				nodes(null).put("recursos", Mode.RECORD, Operation.DESERIALIZE);
 			}
 		});
 		gson = builder.create();
