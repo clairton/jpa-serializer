@@ -29,10 +29,10 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	protected final Mirror mirror = new Mirror();
 
 	public JpaSerializer() {
-		this(new Nodes());
+		this(new NodesProgramatic());
 	}
 
-	public JpaSerializer(Nodes nodes) {
+	public JpaSerializer(final Nodes nodes) {
 		super();
 		this.nodes = nodes;
 	}

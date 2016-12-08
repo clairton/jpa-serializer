@@ -1,53 +1,59 @@
 package br.eti.clairton.jpa.serializer;
 
+import static br.eti.clairton.jpa.serializer.Mode.ID;
+import static br.eti.clairton.jpa.serializer.Mode.ID_POLYMORPHIC;
+import static br.eti.clairton.jpa.serializer.Mode.IGNORE;
+import static br.eti.clairton.jpa.serializer.Mode.RECORD;
+import static br.eti.clairton.jpa.serializer.Mode.RELOAD;
+import static br.eti.clairton.jpa.serializer.Operation.DESERIALIZE;
+import static br.eti.clairton.jpa.serializer.Operation.SERIALIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class NodesTest {
-	private Nodes node = new Nodes() {
+public class NodesProgramaticTest {
+	private Nodes node = new NodesProgramatic() {
 		private static final long serialVersionUID = -6502172538546602569L;
-
 		{
-			put("ignore", Mode.IGNORE);
-			put("record", Mode.RECORD);
-			put("reload", Mode.RELOAD);
-			put("reloadOnlySerialize", Mode.RELOAD, Operation.SERIALIZE);
-			put("idPolymorphic", Mode.ID_POLYMORPHIC);
-			put("id", Mode.ID);
+			put("ignore", IGNORE);
+			put("record", RECORD);
+			put("reload", RELOAD);
+			put("reloadOnlySerialize", RELOAD, SERIALIZE);
+			put("idPolymorphic", ID_POLYMORPHIC);
+			put("id", ID);
 		}
 	};
 
 	@Test
 	public void testGetWhenNotExistOperationOther() {
-		assertEquals(Mode.ID, node.get("reloadOnlySerialize", Operation.DESERIALIZE).getMode());
+		assertEquals(ID, node.get("reloadOnlySerialize", DESERIALIZE).getMode());
 	}
 
 	@Test
 	public void testGetWhenExistOperationOther() {
-		assertEquals(Mode.RELOAD, node.get("reloadOnlySerialize", Operation.SERIALIZE).getMode());
+		assertEquals(RELOAD, node.get("reloadOnlySerialize", SERIALIZE).getMode());
 	}
 
 	@Test
 	public void testGetWhenNotExistOperation() {
-		assertEquals(Mode.ID, node.get("xpto", Operation.SERIALIZE).getMode());
+		assertEquals(ID, node.get("xpto", SERIALIZE).getMode());
 	}
 
 	@Test
 	public void testGetWhenExistOperation() {
-		assertEquals(Mode.RELOAD, node.get("reload", Operation.SERIALIZE).getMode());
+		assertEquals(RELOAD, node.get("reload", SERIALIZE).getMode());
 	}
 
 	@Test
 	public void testGetWhenNotExist() {
-		assertEquals(Mode.ID, node.get("xpto").getMode());
+		assertEquals(ID, node.get("xpto").getMode());
 	}
 
 	@Test
 	public void testGetWhenExist() {
-		assertEquals(Mode.RELOAD, node.get("reload").getMode());
+		assertEquals(RELOAD, node.get("reload").getMode());
 	}
 
 	@Test
@@ -64,7 +70,7 @@ public class NodesTest {
 	public void testIsId() {
 		assertTrue(node.isId("id"));
 	}
-	
+
 	@Test
 	public void testIsIdPolymorphic() {
 		assertTrue(node.isId("idPolymorphic"));
