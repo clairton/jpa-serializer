@@ -272,11 +272,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 	protected Class<?> getRawType(final Field field) {
 		final ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
 		final java.lang.reflect.Type[] arguments = parameterizedType.getActualTypeArguments();
-		try {
-			return Class.forName(arguments[0].toString().replace("class ", ""));
-		} catch (final ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		return getClass(arguments[0]);
 	}
 
 	protected <W> Collection<W> getValueCollection(final JsonDeserializationContext context, final JsonArray array, final Object target, final Field field) {
