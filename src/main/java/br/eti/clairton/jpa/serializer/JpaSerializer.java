@@ -110,7 +110,7 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 	}
 
 	protected Class<T> getClass(final java.lang.reflect.Type type) {
-		final String name = type.toString().replaceAll("class ", "");
+		final String name = type.toString().replaceAll("class ", "").replaceAll("<\\?.*", "");
 		try {
 			@SuppressWarnings("unchecked")
 			final Class<T> t = (Class<T>) Class.forName(name);
