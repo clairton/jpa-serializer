@@ -332,7 +332,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final java.lang.reflect.Type fielType = field.getGenericType();
 		final ParameterizedType pType = (ParameterizedType) fielType;
 		final java.lang.reflect.Type[] arr = pType.getActualTypeArguments();
-		final Class<?> elementType = (Class<?>) arr[0];
+		final Class<?> elementType = getClass(arr[0]);
 		final Collection<W> collection = getInstance(field.getType());
 		final JsonArray array = element.getAsJsonArray();
 		final Metamodel metamodel = entityManager.getMetamodel();
