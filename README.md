@@ -1,4 +1,4 @@
-# jpa-serializer[![Build Status](https://drone.io/github.com/clairton/jpa-serializer/status.png)](https://drone.io/github.com/clairton/jpa-serializer/latest)
+# jpa-serializer[![Build Status](https://travis-ci.org/clairton/jpa-serializer.svg?branch=master)](https://travis-ci.org/clairton/jpa-serializer)
 Serialize JPA entities for JSON ActiveModelSerializer Style with GSON.
 To Use example:
 ```java
@@ -34,17 +34,6 @@ Download throught maven, dependency:
 <dependency>
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>jpa-serializer</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>latest</version>
 </dependency>
-```
-Add the repositories:
-```xml
-<repository>
-	<id>mvn-repo-releases</id>
-	<url>https://raw.github.com/clairton/mvn-repo/releases</url>
-</repository>
-<repository>
-	<id>mvn-repo-snaphots</id>
-	<url>https://raw.github.com/clairton/mvn-repo/snapshots</url>
-</repository>
 ```
