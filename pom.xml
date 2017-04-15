@@ -4,6 +4,7 @@
 	<groupId>br.eti.clairton</groupId>
 	<artifactId>jpa-serializer</artifactId>
 	<name>Jpa Serializer</name>
+	<description>Serialize JPA entities for JSON ActiveModelSerializer Style</description>
 	<version>1.3.0</version>
 	<url>https://github.com/clairton/jpa-serializer</url>
 	<scm>
