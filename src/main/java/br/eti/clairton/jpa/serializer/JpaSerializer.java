@@ -5,16 +5,17 @@ import static br.eti.clairton.jpa.serializer.Mode.ID_POLYMORPHIC;
 import static br.eti.clairton.jpa.serializer.Mode.IGNORE;
 import static br.eti.clairton.jpa.serializer.Mode.RECORD;
 import static br.eti.clairton.jpa.serializer.Mode.RELOAD;
-import static org.apache.logging.log4j.LogManager.getLogger;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Logger.getLogger;
 
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-
-import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
 
@@ -24,7 +25,7 @@ import net.vidageek.mirror.dsl.Mirror;
 
 public abstract class JpaSerializer<T> extends Tagable<T> {
 	private static final long serialVersionUID = 1L;
-	private final Logger logger = getLogger(JpaSerializer.class);
+	private final Logger logger = getLogger(JpaSerializer.class.getSimpleName());
 	private final Nodes nodes;
 	protected final Mirror mirror = new Mirror();
 
@@ -114,11 +115,11 @@ public abstract class JpaSerializer<T> extends Tagable<T> {
 		try {
 			@SuppressWarnings("unchecked")
 			final Class<T> t = (Class<T>) Class.forName(name);
-			logger.debug("Deserializando tipo {}", t.getSimpleName());
+			logger.log(FINE, "Deserializando tipo {}", t.getSimpleName());
 			return t;
 		} catch (final Exception e) {
-			logger.error("Erro ao instanciar tipo {}, detalhe: {}", type, e.getMessage());
-			logger.debug("Erro ao instanciar", e);
+			logger.log(SEVERE, "Erro ao instanciar tipo {}, detalhe: {}", new Object[]{type, e.getMessage()});
+			logger.log(FINE, "Erro ao instanciar", e);
 			throw new JsonParseException(e);
 		}
 	}

@@ -3,6 +3,10 @@ package br.eti.clairton.jpa.serializer;
 import static br.eti.clairton.jpa.serializer.Operation.DESERIALIZE;
 import static br.eti.clairton.jpa.serializer.Operation.SERIALIZE;
 import static java.lang.Character.toLowerCase;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -18,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -28,9 +33,6 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.validation.constraints.NotNull;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -56,7 +58,7 @@ import net.vidageek.mirror.set.dsl.SetterHandler;
  */
 public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerializer<T>, JsonDeserializer<T> {
 	private static final long serialVersionUID = 1L;
-	private final Logger logger = LogManager.getLogger(GsonJpaSerializer.class);
+	private final Logger logger = getLogger(GsonJpaSerializer.class.getSimpleName());
 	private final EntityManager entityManager;
 	private static final Map<Class<?>, Method> annotations = new HashMap<Class<?>, Method>() {
 		{
@@ -107,7 +109,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			for (final Field field : fields) {
 				final String tag = getTag(field);
 				if (isIgnore(src, tag, SERIALIZE)) {
-					logger.debug("Ignorando field {}", tag);
+					logger.log(FINE, "Ignorando field {}", tag);
 					continue;
 				}
 				final JsonElement element = serialize(src, field, type, context);
@@ -115,7 +117,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			}
 			return json;
 		} catch (final Exception e) {
-			logger.error("Erro ao serializar " + src, e);
+			logger.log(SEVERE, "Erro ao serializar " + src, e);
 			throw new JsonParseException(e);
 		}
 	}
@@ -130,11 +132,11 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
 			if (field == null) {
-				logger.warn("Field {} não encontrado em {}", entry.getKey(), model.getClass().getSimpleName());
+				logger.log(WARNING, "Field {} não encontrado em {}", new Object[]{entry.getKey(), model.getClass().getSimpleName()});
 				continue;
 			}
 			final Object value = getValue(context, entry.getValue(), model, field);
-			logger.debug("Valor extraido {}#{}={}", type, field.getName(), value);
+			logger.log(FINE,"Valor extraido {}#{}={}", new Object[]{type, field.getName(), value});
 			setValue(model, field, value);
 		}
 		return model;
@@ -161,7 +163,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
-		logger.debug("Serializando {}#{}", klazz, tag);
+		logger.log(FINE, "Serializando {}#{}", new Object[]{klazz, tag});
 		if (isToOne(src, field, SERIALIZE)) {
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
@@ -189,7 +191,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		} else {
 			value = getValue(src, field);
 		}
-		logger.debug("Valor extraido {}#{}={}", klazz, tag, value);
+		logger.log(FINE, "Valor extraido {}#{}={}", new Object[]{klazz, tag, value});
 		return value;
 	}
 

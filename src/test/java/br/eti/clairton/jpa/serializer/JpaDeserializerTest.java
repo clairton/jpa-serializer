@@ -10,8 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +27,6 @@ import net.vidageek.mirror.dsl.Mirror;
 
 public class JpaDeserializerTest {
 	private final Mirror mirror = new Mirror();
-	final Logger logger = LogManager.getLogger(JpaDeserializerTest.class);
 	private Gson gson;
 	private Aplicacao aplicacao;
 	private Recurso recurso;

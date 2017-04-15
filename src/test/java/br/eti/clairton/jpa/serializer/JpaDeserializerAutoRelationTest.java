@@ -2,8 +2,6 @@ package br.eti.clairton.jpa.serializer;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ import com.google.gson.GsonBuilder;
 import br.eti.clairton.jpa.serializer.model.Aplicacao;
 
 public class JpaDeserializerAutoRelationTest {
-	final Logger logger = LogManager.getLogger(JpaDeserializerAutoRelationTest.class);
 	private Gson gson;
 
 	@Before

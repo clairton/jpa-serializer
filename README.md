@@ -1,5 +1,7 @@
 # jpa-serializer[![Build Status](https://travis-ci.org/clairton/jpa-serializer.svg?branch=master)](https://travis-ci.org/clairton/jpa-serializer)
+
 Serialize JPA entities for JSON ActiveModelSerializer Style with GSON.
+
 To Use example:
 ```java
 public class FooSerializer extends GsonJpaSerializer<Foo> {
@@ -30,6 +32,7 @@ The Mode should be:
 *IGNORE: serialize/deserialize ignore this item
 
 Download throught maven, dependency:
+
 ```xml
 <dependency>
 	<groupId>br.eti.clairton</groupId>
