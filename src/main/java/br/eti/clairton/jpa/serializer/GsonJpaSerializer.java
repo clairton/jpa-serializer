@@ -109,7 +109,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 			for (final Field field : fields) {
 				final String tag = getTag(field);
 				if (isIgnore(src, tag, SERIALIZE)) {
-					logger.log(FINE, "Ignorando field {}", tag);
+					logger.log(FINE, "Ignorando field {1}", tag);
 					continue;
 				}
 				final JsonElement element = serialize(src, field, type, context);
@@ -132,11 +132,11 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		for (final Entry<String, JsonElement> entry : jsonObject.entrySet()) {
 			final Field field = getField(model.getClass(), entry.getKey());
 			if (field == null) {
-				logger.log(WARNING, "Field {} não encontrado em {}", new Object[]{entry.getKey(), model.getClass().getSimpleName()});
+				logger.log(WARNING, "Field {1} não encontrado em {2}", new Object[]{entry.getKey(), model.getClass().getSimpleName()});
 				continue;
 			}
 			final Object value = getValue(context, entry.getValue(), model, field);
-			logger.log(FINE,"Valor extraido {}#{}={}", new Object[]{type, field.getName(), value});
+			logger.log(FINE,"Valor extraido {1}#{2}={3}", new Object[]{type, field.getName(), value});
 			setValue(model, field, value);
 		}
 		return model;
@@ -163,7 +163,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		final Object value;
 		final String klazz = src.getClass().getSimpleName();
 		final String tag = field.getName();
-		logger.log(FINE, "Serializando {}#{}", new Object[]{klazz, tag});
+		logger.log(FINE, "Serializando {1}#{2}", new Object[]{klazz, tag});
 		if (isToOne(src, field, SERIALIZE)) {
 			final Collection<Object> ids = new ArrayList<Object>();
 			final Object v = getValue(src, field);
@@ -191,7 +191,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 		} else {
 			value = getValue(src, field);
 		}
-		logger.log(FINE, "Valor extraido {}#{}={}", new Object[]{klazz, tag, value});
+		logger.log(FINE, "Valor extraido {1}#{2}={3}", new Object[]{klazz, tag, value});
 		return value;
 	}
 
@@ -320,7 +320,7 @@ public class GsonJpaSerializer<T> extends JpaSerializer<T> implements JsonSerial
 
 	protected <X> X newInstance(final Class<X> klazz) {
 		try {
-			return klazz.newInstance();
+			return klazz.getDeclaredConstructor().newInstance();
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
